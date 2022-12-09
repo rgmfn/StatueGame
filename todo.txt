@@ -1,0 +1,20 @@
+Systems:
+- rendering colored tiles
+	- draw character, draw transparent color on top of character
+		- is that how that works?
+	- character map file and color map file? and collision map file?
+		- all in same file?
+		- they're most likely going to be stored in separate arrays anyways
+	- alternative file structure built by program?
+- text box popup system
+	- can cycle through text
+- view system
+	- blinking cursor to move around to get descriptions of the environment
+		- movement no longer controls player, but cursor
+		- just dwarf fortress
+	- certain background tiles have descriptions
+		- where is that stored?
+		- bottom of room file, list of descriptions with coordinates
+			- eg. 5 8 The neighbors dog. Ugly but in a cute kind of way.
+- alternate view system
+	- on each screen you can look at a view of the whole screen from player(ish) POV
