@@ -2,6 +2,7 @@ Systems:
 - rendering colored tiles
 	- draw character, draw transparent color on top of character
 		- is that how that works?
+		- yeah, pretty much
 	- character map file and color map file? and collision map file?
 		- all in same file?
 		- they're most likely going to be stored in separate arrays anyways

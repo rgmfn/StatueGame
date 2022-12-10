@@ -2,26 +2,31 @@ import pygame
 
 pygame.init()
 
-SCALE = ?
-# tile width, tile height
-TW = ?
-TH = ?
+SCALE = 4
+TILE_WIDTH = 8
+TILE_HEIGHT = 12
 
-# window width, window height
-WW = 400
-WH = 400
+TILES_WIDE = 10
+TILES_TALL = 10
 
-display = pygame.display.set_mode((WW, WH))
-pygame.display.set_caption('Sudoku')
+SCREEN_WIDTH = TILE_WIDTH * TILES_WIDE
+SCREEN_HEIGHT = TILE_HEIGHT * TILES_TALL
+
+DISPLAY_WIDTH = SCREEN_WIDTH * SCALE
+DISPLAY_HEIGHT = SCREEN_HEIGHT * SCALE
+
+display = pygame.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT))
+screen = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption('Statue Meditation')
 
 mainClock = pygame.time.Clock()
 
-test_img = pygame.image.load('assets/test.png').convert_alpha()
+spritesheet = pygame.image.load('assets/spritesheet.png')
 
-test_color = (255, 0, 0)
-test_surf = pygame.Surface((20, 20))
-test_surf.set_alpha(255)
-test_surf.fill(test_color)
+# test_color = (255, 0, 0)
+# test_surf = pygame.Surface((TILE_WIDTH, TILE_HEIGHT))
+# test_surf.set_alpha(255)
+# test_surf.fill(test_color)
 
 run = True
 while run:
@@ -37,8 +42,10 @@ while run:
             if event.key == pygame.K_ESCAPE:
                 run = False
 
-    display.blit(test_img, (0, 0))
-    display.blit(test_surf, (0, 0), special_flags=pygame.BLEND_MIN)
+    screen.blit(spritesheet, (0, 0))
+
+    pygame.transform.scale(screen, (DISPLAY_WIDTH, DISPLAY_HEIGHT), display)
+
     pygame.display.update()
     mainClock.tick(30)
 
