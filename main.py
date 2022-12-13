@@ -1,31 +1,47 @@
 import pygame
 
+import data.constants as dc
+import data.map as dm
+
 pygame.init()
 
-SCALE = 4
-TILE_WIDTH = 8
-TILE_HEIGHT = 12
-
-TILES_WIDE = 10
-TILES_TALL = 10
-
-SCREEN_WIDTH = TILE_WIDTH * TILES_WIDE
-SCREEN_HEIGHT = TILE_HEIGHT * TILES_TALL
-
-DISPLAY_WIDTH = SCREEN_WIDTH * SCALE
-DISPLAY_HEIGHT = SCREEN_HEIGHT * SCALE
-
-display = pygame.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT))
-screen = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+display = pygame.display.set_mode((
+    dc.DISPLAY_WIDTH,
+    dc.DISPLAY_HEIGHT,
+))
+screen = pygame.Surface((
+    dc.SCREEN_WIDTH,
+    dc.SCREEN_HEIGHT,
+))
 pygame.display.set_caption('Statue Meditation')
 
 mainClock = pygame.time.Clock()
 
 spritesheet = pygame.image.load('assets/spritesheet.png')
 
+player = {
+    'x': 3 * dc.TILE_WIDTH,
+    'y': 3 * dc.TILE_WIDTH,
+    'sprite': spritesheet.subsurface((
+                dc.TILE_WIDTH,
+                0,
+                dc.TILE_WIDTH,
+                dc.TILE_HEIGHT
+            )),
+    'color': dc.Color.GRN,
+}
+
+UP_KEYS = [pygame.K_UP, pygame.K_i]
+DOWN_KEYS = [pygame.K_DOWN, pygame.K_k]
+LEFT_KEYS = [pygame.K_LEFT, pygame.K_j]
+RIGHT_KEYS = [pygame.K_RIGHT, pygame.K_l]
+
+map = dm.load_map('map.txt', spritesheet)
+# dm.print_map(map)
+
 # test_color = (255, 0, 0)
-# test_surf = pygame.Surface((TILE_WIDTH, TILE_HEIGHT))
-# test_surf.set_alpha(255)
+# test_surf = pygame.Surface((dc.TILE_WIDTH, dc.TILE_HEIGHT))
+# test_surf.set_alpha(100)
 # test_surf.fill(test_color)
 
 run = True
@@ -41,10 +57,43 @@ while run:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 run = False
+            if event.key in UP_KEYS:
+                player['y'] -= dc.TILE_HEIGHT
+            elif event.key in DOWN_KEYS:
+                player['y'] += dc.TILE_HEIGHT
+            if event.key in LEFT_KEYS:
+                player['x'] -= dc.TILE_WIDTH
+            elif event.key in RIGHT_KEYS:
+                player['x'] += dc.TILE_WIDTH
 
-    screen.blit(spritesheet, (0, 0))
+    screen.fill(dc.BLACK)
 
-    pygame.transform.scale(screen, (DISPLAY_WIDTH, DISPLAY_HEIGHT), display)
+    for iy, row in enumerate(map):
+        for ix, tile in enumerate(row):
+            screen.blit(tile['sprite'], (
+                ix * dc.TILE_WIDTH,
+                iy * dc.TILE_HEIGHT
+            ))
+            screen.blit(dc.SURFACES[tile['color']], (
+                ix * dc.TILE_WIDTH,
+                iy * dc.TILE_HEIGHT,
+            ), special_flags=pygame.BLEND_RGB_MIN)
+
+    screen.blit(player['sprite'], (player['x'], player['y']))
+    screen.blit(
+        dc.SURFACES[dc.Color.GRN],
+        (player['x'], player['y']),
+        special_flags=pygame.BLEND_RGB_MIN
+    )
+
+    pygame.transform.scale(
+        screen,
+        (
+            dc.DISPLAY_WIDTH,
+            dc.DISPLAY_HEIGHT,
+        ),
+        display,
+    )
 
     pygame.display.update()
     mainClock.tick(30)
