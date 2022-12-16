@@ -27,6 +27,8 @@ tile = dm.Tile(
 
 color_prompt = 'Color:'
 tile_prompt = 'Tile:'
+save_prompt = 'Save map to:'
+load_prompt = 'Load map from:'
 
 dialogue: dp.Popup = dp.Popup(
     num_lines=2,
@@ -56,20 +58,21 @@ test_popup.set(
 
 popup = None
 
-map = dm.load_map('map.txt')
+map = dm.empty_map(dc.TILES_WIDE, dc.TILES_TALL)
 
-tile_color = dc.Color.RED
+tile_color = dc.Color.WHITE
 tile_char = '@'
 
 
 def get_popup_value():
     global tile_color
     global tile_char
+    global map
     if popup.text == [[color_prompt]]:
         popup.input = popup.input.upper()
         if popup.input in dc.color_names:
             tile_color = dc.Color[popup.input]
-    if popup.text == [[tile_prompt]]:
+    elif popup.text == [[tile_prompt]]:
         if popup.input.find('num') >= 0:
             popup.input = popup.input.replace('num', '').strip()
 
@@ -83,13 +86,18 @@ def get_popup_value():
             tile_char = chr(int(popup.input))
         elif len(popup.input) == 1:
             tile_char = popup.input
+    elif popup.text == [[save_prompt]]:
+        dm.save_map(map, popup.input + '.json')
+    elif popup.text == [[load_prompt]]:
+        map = dm.load_map(popup.input + '.json')
 
 
 mouse_x, mouse_y = pygame.mouse.get_pos()
 
 ctr = 0
 run = True
-# TODO split keyboard and mouse input into separate methods
+# TODO? split keyboard and mouse input into separate methods
+# add drag click for setting tiles
 while run:
 
     mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -99,11 +107,24 @@ while run:
             run = False
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            map[
-                ((mouse_y // dc.SCALE) // dc.TILE_HEIGHT)
-            ][
-                ((mouse_x // dc.SCALE) // dc.TILE_WIDTH)
-            ].set(tile_char, tile_color)
+            if event.button == 1:
+                map[
+                    ((mouse_y // dc.SCALE) // dc.TILE_HEIGHT)
+                ][
+                    ((mouse_x // dc.SCALE) // dc.TILE_WIDTH)
+                ].set(tile_char, tile_color)
+            elif event.button == 2:
+                map[
+                    ((mouse_y // dc.SCALE) // dc.TILE_HEIGHT)
+                ][
+                    ((mouse_x // dc.SCALE) // dc.TILE_WIDTH)
+                ].set(' ', tile_color)
+            elif event.button == 3:
+                tile_char = map[
+                    ((mouse_y // dc.SCALE) // dc.TILE_HEIGHT)
+                ][
+                    ((mouse_x // dc.SCALE) // dc.TILE_WIDTH)
+                ].char
 
         if event.type == pygame.KEYDOWN:
             if popup and popup.does_input:
@@ -126,6 +147,12 @@ while run:
             elif event.key == pygame.K_t:
                 popup = dialogue
                 popup.set(text=[tile_prompt])
+            elif event.key == pygame.K_s:
+                popup = dialogue
+                popup.set(text=[save_prompt])
+            elif event.key == pygame.K_l:
+                popup = dialogue
+                popup.set(text=[load_prompt])
             elif event.key == pygame.K_a:
                 print(tile_color)
                 print(tile_char)
@@ -134,7 +161,7 @@ while run:
 
     dm.draw_map(screen, map)
 
-    screen.blit(dp.char_sprites[tile_char], (
+    screen.blit(dp.char_sprites[ord(tile_char)], (
         ((mouse_x // dc.SCALE) // dc.TILE_WIDTH)*dc.TILE_WIDTH,
         ((mouse_y // dc.SCALE) // dc.TILE_HEIGHT)*dc.TILE_HEIGHT,
     ))

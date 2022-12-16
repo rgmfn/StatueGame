@@ -34,7 +34,8 @@ DOWN_KEYS = [pygame.K_DOWN, pygame.K_k]
 LEFT_KEYS = [pygame.K_LEFT, pygame.K_j]
 RIGHT_KEYS = [pygame.K_RIGHT, pygame.K_l]
 
-map = dm.load_map('map.txt')
+# map = dm.load_map('map.txt')
+map = dm.empty_map(dc.TILES_WIDE, dc.TILES_TALL)
 # dm.print_map(map)
 
 # test_color = (255, 0, 0)

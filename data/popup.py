@@ -3,13 +3,21 @@ import data.map as dm
 import pygame
 
 char_sprites = {}
-for i in range(ord('!'), 256):
-    char_sprites[chr(i)] = dc.spritesheet.subsurface((
+char_sprites = [
+    dc.spritesheet.subsurface((
         (i % dc.SPRITES_PER_ROW) * dc.TILE_WIDTH,
         (i // dc.SPRITES_PER_ROW) * dc.TILE_HEIGHT,
         dc.TILE_WIDTH,
         dc.TILE_HEIGHT,
-    ))
+    )) for i in range(0, 256)
+]
+# for i in range(ord('!'), 256):
+#     char_sprites[chr(i)] = dc.spritesheet.subsurface((
+#         (i % dc.SPRITES_PER_ROW) * dc.TILE_WIDTH,
+#         (i // dc.SPRITES_PER_ROW) * dc.TILE_HEIGHT,
+#         dc.TILE_WIDTH,
+#         dc.TILE_HEIGHT,
+#     ))
 
 TOP_LEFT = dc.spritesheet.subsurface((
     (218 % dc.SPRITES_PER_ROW) * dc.TILE_WIDTH,
@@ -236,7 +244,7 @@ class Popup:
         for iy, line in enumerate(box):
             for ix, char in enumerate(line):
                 if char != ' ':
-                    screen.blit(char_sprites[char], (
+                    screen.blit(char_sprites[ord(char)], (
                         (self.x+self.side_margin+ix+1)*dc.TILE_WIDTH,
                         (self.y+self.top_margin+1 +
                             iy*(self.line_space+1))*dc.TILE_HEIGHT)
@@ -248,21 +256,21 @@ class Popup:
         line = box[0]
         for ix, char in enumerate(line):
             if char != ' ':
-                screen.blit(char_sprites[char], (
+                screen.blit(char_sprites[ord(char)], (
                     (self.x+self.side_margin+ix+1)*dc.TILE_WIDTH,
                     (self.y+self.top_margin+1)*dc.TILE_HEIGHT)
                 )
         ix = 0
         for char in self.input:
             if char != ' ':
-                screen.blit(char_sprites[char], (
+                screen.blit(char_sprites[ord(char)], (
                     (self.x+self.side_margin+ix+1)*dc.TILE_WIDTH,
                     (self.y+self.top_margin+1 +
                         self.line_space+1)*dc.TILE_HEIGHT)
                 )
             ix += 1
         if ix < self.line_width:
-            screen.blit(char_sprites['_'], (
+            screen.blit(char_sprites[ord('_')], (
                 (self.x+self.side_margin+ix+1)*dc.TILE_WIDTH,
                 (self.y+self.top_margin+1 +
                     self.line_space+1)*dc.TILE_HEIGHT)

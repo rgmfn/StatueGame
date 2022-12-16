@@ -1,5 +1,6 @@
 import data.constants as dc
 import pygame
+import json
 
 
 class Tile:
@@ -7,7 +8,7 @@ class Tile:
         self,
         char: str,
         color: dc.Color,
-        description: str,
+        description: str = None,
         name: str = None,
     ):
         self.char = char
@@ -20,6 +21,12 @@ class Tile:
         self.char = char
         self.color = color
         self.__set_sprite(char)
+
+    def to_object(self):
+        return {
+            'char': self.char,
+            'color': self.color.name,
+        }
 
     def __set_sprite(self, char: str):
         self.sprite = dc.spritesheet.subsurface((
@@ -34,18 +41,47 @@ class Tile:
 
 
 def load_map(file) -> []:
-    f = open(f'assets/map/{file}', 'r')
-    lines = f.readlines()
+    with open(f'assets/map/{file}', 'r') as f:
 
+        obj = json.loads(f.readline())
+        # print(obj)
+
+        new_map = []
+        for line in obj['map']:
+            new_line = []
+            for tile in line:
+                new_line.append(Tile(
+                    char=tile['char'],
+                    color=dc.Color[tile['color']],
+                ))
+            new_map.append(new_line)
+
+        return new_map
+
+
+def save_map(map: [], file: str):
+    with open(f'assets/map/{file}', 'w') as f:
+        new_map = []
+        for line in map:
+            new_line = []
+            for tile in line:
+                new_line.append(tile.to_object())
+            new_map.append(new_line)
+
+        obj = {'map': new_map, 'descriptions': []}
+
+        f.write(json.dumps(obj))
+
+
+def empty_map(width: int, height: int):
     map = []
-    for line in lines:
-        line = line.replace('\n', '')
+    for _ in range(height):
         line_arr = []
-        for char in line:
+        for _ in range(width):
             line_arr.append(
                 Tile(
-                    char=char,
-                    color=dc.Color.RED,
+                    char=' ',
+                    color=dc.Color.WHITE,
                     description='',
                 )
             )
@@ -74,4 +110,11 @@ def draw_map(screen: pygame.Surface, map: []):
                 iy * dc.TILE_HEIGHT,
             ), special_flags=pygame.BLEND_RGB_MIN)
 
-# TODO add save function
+
+"""
+TODO
+ change class
+ make santa wishlist
+ make amazon wishlist
+ decide what to get family
+"""
