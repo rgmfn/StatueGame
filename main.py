@@ -17,12 +17,10 @@ pygame.display.set_caption('Statue Meditation')
 
 mainClock = pygame.time.Clock()
 
-spritesheet = pygame.image.load('assets/spritesheet.png')
-
 player = {
     'x': 3 * dc.TILE_WIDTH,
     'y': 3 * dc.TILE_WIDTH,
-    'sprite': spritesheet.subsurface((
+    'sprite': dc.spritesheet.subsurface((
                 dc.TILE_WIDTH,
                 0,
                 dc.TILE_WIDTH,
@@ -36,7 +34,7 @@ DOWN_KEYS = [pygame.K_DOWN, pygame.K_k]
 LEFT_KEYS = [pygame.K_LEFT, pygame.K_j]
 RIGHT_KEYS = [pygame.K_RIGHT, pygame.K_l]
 
-map = dm.load_map('map.txt', spritesheet)
+map = dm.load_map('map.txt')
 # dm.print_map(map)
 
 # test_color = (255, 0, 0)
@@ -44,6 +42,7 @@ map = dm.load_map('map.txt', spritesheet)
 # test_surf.set_alpha(100)
 # test_surf.fill(test_color)
 
+ctr = 0
 run = True
 while run:
 
@@ -68,16 +67,7 @@ while run:
 
     screen.fill(dc.BLACK)
 
-    for iy, row in enumerate(map):
-        for ix, tile in enumerate(row):
-            screen.blit(tile['sprite'], (
-                ix * dc.TILE_WIDTH,
-                iy * dc.TILE_HEIGHT
-            ))
-            screen.blit(dc.SURFACES[tile['color']], (
-                ix * dc.TILE_WIDTH,
-                iy * dc.TILE_HEIGHT,
-            ), special_flags=pygame.BLEND_RGB_MIN)
+    dm.draw_map(screen, map)
 
     screen.blit(player['sprite'], (player['x'], player['y']))
     screen.blit(
@@ -95,6 +85,8 @@ while run:
         display,
     )
 
+    print(ctr)
+    ctr += 1
     pygame.display.update()
     mainClock.tick(30)
 

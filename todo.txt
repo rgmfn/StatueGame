@@ -23,11 +23,11 @@ Systems:
 	- pick sprite and color
 	- uses text popup system
 - text box popup system
-	- can cycle through text
-	- specify:
-		- text
-		- input?
-		- lines
+	x can cycle through text
+	x specify:
+		x text
+		x input?
+		x lines
 		- speaker (with color? borrowed from obj?)
 - view system
 	- blinking cursor to move around to get descriptions of the environment
