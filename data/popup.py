@@ -2,7 +2,6 @@ import data.constants as dc
 import data.map as dm
 import pygame
 
-char_sprites = {}
 char_sprites = [
     dc.spritesheet.subsurface((
         (i % dc.SPRITES_PER_ROW) * dc.TILE_WIDTH,
@@ -11,50 +10,12 @@ char_sprites = [
         dc.TILE_HEIGHT,
     )) for i in range(0, 256)
 ]
-# for i in range(ord('!'), 256):
-#     char_sprites[chr(i)] = dc.spritesheet.subsurface((
-#         (i % dc.SPRITES_PER_ROW) * dc.TILE_WIDTH,
-#         (i // dc.SPRITES_PER_ROW) * dc.TILE_HEIGHT,
-#         dc.TILE_WIDTH,
-#         dc.TILE_HEIGHT,
-#     ))
-
-TOP_LEFT = dc.spritesheet.subsurface((
-    (218 % dc.SPRITES_PER_ROW) * dc.TILE_WIDTH,
-    (218 // dc.SPRITES_PER_ROW) * dc.TILE_HEIGHT,
-    dc.TILE_WIDTH,
-    dc.TILE_HEIGHT,
-))
-TOP_RIGHT = dc.spritesheet.subsurface((
-    (191 % dc.SPRITES_PER_ROW) * dc.TILE_WIDTH,
-    (191 // dc.SPRITES_PER_ROW) * dc.TILE_HEIGHT,
-    dc.TILE_WIDTH,
-    dc.TILE_HEIGHT,
-))
-BOTTOM_LEFT = dc.spritesheet.subsurface((
-    (192 % dc.SPRITES_PER_ROW) * dc.TILE_WIDTH,
-    (192 // dc.SPRITES_PER_ROW) * dc.TILE_HEIGHT,
-    dc.TILE_WIDTH,
-    dc.TILE_HEIGHT,
-))
-BOTTOM_RIGHT = dc.spritesheet.subsurface((
-    (217 % dc.SPRITES_PER_ROW) * dc.TILE_WIDTH,
-    (217 // dc.SPRITES_PER_ROW) * dc.TILE_HEIGHT,
-    dc.TILE_WIDTH,
-    dc.TILE_HEIGHT,
-))
-SIDE = dc.spritesheet.subsurface((
-    (179 % dc.SPRITES_PER_ROW) * dc.TILE_WIDTH,
-    (179 // dc.SPRITES_PER_ROW) * dc.TILE_HEIGHT,
-    dc.TILE_WIDTH,
-    dc.TILE_HEIGHT,
-))
-TOP = dc.spritesheet.subsurface((
-    (196 % dc.SPRITES_PER_ROW) * dc.TILE_WIDTH,
-    (196 // dc.SPRITES_PER_ROW) * dc.TILE_HEIGHT,
-    dc.TILE_WIDTH,
-    dc.TILE_HEIGHT,
-))
+TOP_LEFT = char_sprites[218]
+TOP_RIGHT = char_sprites[191]
+BOTTOM_LEFT = char_sprites[192]
+BOTTOM_RIGHT = char_sprites[217]
+SIDE = char_sprites[179]
+TOP = char_sprites[196]
 
 
 class Popup:

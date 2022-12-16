@@ -10,11 +10,13 @@ class Tile:
         color: dc.Color,
         description: str = None,
         name: str = None,
+        is_wall: bool = False,
     ):
         self.char = char
         self.color = color
         self.description = description
         self.name = name
+        self.is_wall = is_wall
         self.__set_sprite(char)
 
     def set(self, char: str, color: dc.Color):
@@ -26,7 +28,11 @@ class Tile:
         return {
             'char': self.char,
             'color': self.color.name,
+            'is_wall': self.is_wall,
         }
+
+    def flip_wall(self):
+        self.is_wall = not self.is_wall
 
     def __set_sprite(self, char: str):
         self.sprite = dc.spritesheet.subsurface((
@@ -53,6 +59,7 @@ def load_map(file) -> []:
                 new_line.append(Tile(
                     char=tile['char'],
                     color=dc.Color[tile['color']],
+                    is_wall=tile['is_wall']
                 ))
             new_map.append(new_line)
 
@@ -98,17 +105,23 @@ def print_map(map):
         print()
 
 
-def draw_map(screen: pygame.Surface, map: []):
+def draw_map(screen: pygame.Surface, map: [], collision_view: bool = False):
     for iy, row in enumerate(map):
         for ix, tile in enumerate(row):
             screen.blit(tile.sprite, (
                 ix * dc.TILE_WIDTH,
                 iy * dc.TILE_HEIGHT
             ))
-            screen.blit(dc.SURFACES[tile.color], (
-                ix * dc.TILE_WIDTH,
-                iy * dc.TILE_HEIGHT,
-            ), special_flags=pygame.BLEND_RGB_MIN)
+            if collision_view and tile.is_wall:
+                screen.blit(dc.SURFACES[tile.color], (
+                    ix * dc.TILE_WIDTH,
+                    iy * dc.TILE_HEIGHT,
+                ), special_flags=pygame.BLEND_RGB_MAX)
+            else:
+                screen.blit(dc.SURFACES[tile.color], (
+                    ix * dc.TILE_WIDTH,
+                    iy * dc.TILE_HEIGHT,
+                ), special_flags=pygame.BLEND_RGB_MIN)
 
 
 """

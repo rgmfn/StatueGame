@@ -59,6 +59,7 @@ test_popup.set(
 popup = None
 
 map = dm.empty_map(dc.TILES_WIDE, dc.TILES_TALL)
+collision_view = False
 
 tile_color = dc.Color.WHITE
 tile_char = '@'
@@ -108,11 +109,18 @@ while run:
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
-                map[
-                    ((mouse_y // dc.SCALE) // dc.TILE_HEIGHT)
-                ][
-                    ((mouse_x // dc.SCALE) // dc.TILE_WIDTH)
-                ].set(tile_char, tile_color)
+                if collision_view:
+                    map[
+                        ((mouse_y // dc.SCALE) // dc.TILE_HEIGHT)
+                    ][
+                        ((mouse_x // dc.SCALE) // dc.TILE_WIDTH)
+                    ].flip_wall()
+                else:
+                    map[
+                        ((mouse_y // dc.SCALE) // dc.TILE_HEIGHT)
+                    ][
+                        ((mouse_x // dc.SCALE) // dc.TILE_WIDTH)
+                    ].set(tile_char, tile_color)
             elif event.button == 2:
                 map[
                     ((mouse_y // dc.SCALE) // dc.TILE_HEIGHT)
@@ -153,22 +161,25 @@ while run:
             elif event.key == pygame.K_l:
                 popup = dialogue
                 popup.set(text=[load_prompt])
+            elif event.key == pygame.K_v:
+                collision_view = not collision_view
             elif event.key == pygame.K_a:
                 print(tile_color)
                 print(tile_char)
 
     screen.fill(dc.BLACK)
 
-    dm.draw_map(screen, map)
+    dm.draw_map(screen, map, collision_view)
 
-    screen.blit(dp.char_sprites[ord(tile_char)], (
-        ((mouse_x // dc.SCALE) // dc.TILE_WIDTH)*dc.TILE_WIDTH,
-        ((mouse_y // dc.SCALE) // dc.TILE_HEIGHT)*dc.TILE_HEIGHT,
-    ))
-    screen.blit(dc.SURFACES[tile_color], (
-        ((mouse_x // dc.SCALE) // dc.TILE_WIDTH)*dc.TILE_WIDTH,
-        ((mouse_y // dc.SCALE) // dc.TILE_HEIGHT)*dc.TILE_HEIGHT,
-    ), special_flags=pygame.BLEND_RGB_MIN)
+    if not collision_view:
+        screen.blit(dp.char_sprites[ord(tile_char)], (
+            ((mouse_x // dc.SCALE) // dc.TILE_WIDTH)*dc.TILE_WIDTH,
+            ((mouse_y // dc.SCALE) // dc.TILE_HEIGHT)*dc.TILE_HEIGHT,
+        ))
+        screen.blit(dc.SURFACES[tile_color], (
+            ((mouse_x // dc.SCALE) // dc.TILE_WIDTH)*dc.TILE_WIDTH,
+            ((mouse_y // dc.SCALE) // dc.TILE_HEIGHT)*dc.TILE_HEIGHT,
+        ), special_flags=pygame.BLEND_RGB_MIN)
 
     if popup:
         popup.display(screen)

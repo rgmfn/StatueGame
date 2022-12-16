@@ -18,24 +18,42 @@ pygame.display.set_caption('Statue Meditation')
 mainClock = pygame.time.Clock()
 
 player = {
-    'x': 3 * dc.TILE_WIDTH,
-    'y': 3 * dc.TILE_WIDTH,
+    'x': 3,
+    'y': 3,
     'sprite': dc.spritesheet.subsurface((
                 dc.TILE_WIDTH,
                 0,
                 dc.TILE_WIDTH,
                 dc.TILE_HEIGHT
             )),
-    'color': dc.Color.GRN,
+    'color': dc.Color.GREEN
 }
+
+
+def move_player(event):
+    delta_x = 0
+    delta_y = 0
+    if event.key in UP_KEYS:
+        delta_y -= 1
+    elif event.key in DOWN_KEYS:
+        delta_y += 1
+    if event.key in LEFT_KEYS:
+        delta_x -= 1
+    elif event.key in RIGHT_KEYS:
+        delta_x += 1
+
+    if not map[player['y']+delta_y][player['x']+delta_x].is_wall:
+        player['x'] += delta_x
+        player['y'] += delta_y
+
 
 UP_KEYS = [pygame.K_UP, pygame.K_i]
 DOWN_KEYS = [pygame.K_DOWN, pygame.K_k]
 LEFT_KEYS = [pygame.K_LEFT, pygame.K_j]
 RIGHT_KEYS = [pygame.K_RIGHT, pygame.K_l]
 
-# map = dm.load_map('map.txt')
-map = dm.empty_map(dc.TILES_WIDE, dc.TILES_TALL)
+map = dm.load_map('test.json')
+# map = dm.empty_map(dc.TILES_WIDE, dc.TILES_TALL)
 # dm.print_map(map)
 
 # test_color = (255, 0, 0)
@@ -43,7 +61,6 @@ map = dm.empty_map(dc.TILES_WIDE, dc.TILES_TALL)
 # test_surf.set_alpha(100)
 # test_surf.fill(test_color)
 
-ctr = 0
 run = True
 while run:
 
@@ -57,23 +74,20 @@ while run:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 run = False
-            if event.key in UP_KEYS:
-                player['y'] -= dc.TILE_HEIGHT
-            elif event.key in DOWN_KEYS:
-                player['y'] += dc.TILE_HEIGHT
-            if event.key in LEFT_KEYS:
-                player['x'] -= dc.TILE_WIDTH
-            elif event.key in RIGHT_KEYS:
-                player['x'] += dc.TILE_WIDTH
+            else:
+                move_player(event)
 
     screen.fill(dc.BLACK)
 
     dm.draw_map(screen, map)
 
-    screen.blit(player['sprite'], (player['x'], player['y']))
+    screen.blit(player['sprite'], (
+        player['x']*dc.TILE_WIDTH,
+        player['y']*dc.TILE_HEIGHT
+    ))
     screen.blit(
-        dc.SURFACES[dc.Color.GRN],
-        (player['x'], player['y']),
+        dc.SURFACES[player['color']],
+        (player['x']*dc.TILE_WIDTH, player['y']*dc.TILE_HEIGHT),
         special_flags=pygame.BLEND_RGB_MIN
     )
 
@@ -86,8 +100,6 @@ while run:
         display,
     )
 
-    print(ctr)
-    ctr += 1
     pygame.display.update()
     mainClock.tick(30)
 
