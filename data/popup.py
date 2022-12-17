@@ -10,6 +10,9 @@ char_sprites = [
         dc.TILE_HEIGHT,
     )) for i in range(0, 256)
 ]
+for sprite in char_sprites:
+    sprite.set_colorkey(dc.BLACK)
+
 TOP_LEFT = char_sprites[218]
 TOP_RIGHT = char_sprites[191]
 BOTTOM_LEFT = char_sprites[192]
@@ -100,22 +103,6 @@ class Popup:
 
             while len(words) > 0:
                 word = words.pop(0)
-
-                # if space_left >= len(word):
-                #     line += word
-                #     space_left -= len(word)
-                # else:
-                #     box.append(line)
-                #     line = word
-                #     space_left = self.line_width - len(word)
-
-                # if space_left >= 1:
-                #     line += ' '
-                #     space_left -= 1
-                # else:
-                #     box.append(line)
-                #     line = ''
-                #     space_left = self.line_width
 
                 if space_left == self.line_width:
                     line += word

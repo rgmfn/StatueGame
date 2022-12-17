@@ -29,7 +29,7 @@ PURPLE = (126, 78, 172)
 PINK = (220, 55, 83)
 
 color_names = ['WHITE', 'GRAY', 'RED', 'ORANGE', 'YELLOW', 'GREEN',
-               'BLUE', 'PURPLE', 'PINK']
+               'BLUE', 'PURPLE', 'PINK', 'NONE']
 color_list = [WHITE, GRAY, RED, ORANGE, YELLOW, GREEN, BLUE, PURPLE, PINK]
 Color = Enum('Color', color_names)
 

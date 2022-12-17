@@ -20,12 +20,13 @@ mainClock = pygame.time.Clock()
 
 tile = dm.Tile(
     char='d',
-    color=dc.Color.RED,
+    fg=dc.Color.RED,
     description='A cute red dog',
     # name='dog',
 )
 
-color_prompt = 'Color:'
+fg_prompt = 'Fg Color:'
+bg_prompt = 'Bg Color:'
 tile_prompt = 'Tile:'
 save_prompt = 'Save map to:'
 load_prompt = 'Load map from:'
@@ -61,18 +62,24 @@ popup = None
 map = dm.empty_map(dc.TILES_WIDE, dc.TILES_TALL)
 collision_view = False
 
-tile_color = dc.Color.WHITE
+tile_fg = dc.Color.WHITE
+tile_bg = dc.Color.NONE
 tile_char = '@'
 
 
 def get_popup_value():
-    global tile_color
+    global tile_fg
+    global tile_bg
     global tile_char
     global map
-    if popup.text == [[color_prompt]]:
+    if popup.text == [[fg_prompt]]:
         popup.input = popup.input.upper()
         if popup.input in dc.color_names:
-            tile_color = dc.Color[popup.input]
+            tile_fg = dc.Color[popup.input]
+    elif popup.text == [[bg_prompt]]:
+        popup.input = popup.input.upper()
+        if popup.input in dc.color_names:
+            tile_bg = dc.Color[popup.input]
     elif popup.text == [[tile_prompt]]:
         if popup.input.find('num') >= 0:
             popup.input = popup.input.replace('num', '').strip()
@@ -120,19 +127,22 @@ while run:
                         ((mouse_y // dc.SCALE) // dc.TILE_HEIGHT)
                     ][
                         ((mouse_x // dc.SCALE) // dc.TILE_WIDTH)
-                    ].set(tile_char, tile_color)
+                    ].set(tile_char, tile_fg, tile_bg)
             elif event.button == 2:
                 map[
                     ((mouse_y // dc.SCALE) // dc.TILE_HEIGHT)
                 ][
                     ((mouse_x // dc.SCALE) // dc.TILE_WIDTH)
-                ].set(' ', tile_color)
+                ].set(char=' ', fg=dc.Color.NONE, bg=dc.Color.NONE)
             elif event.button == 3:
-                tile_char = map[
+                tile = map[
                     ((mouse_y // dc.SCALE) // dc.TILE_HEIGHT)
                 ][
                     ((mouse_x // dc.SCALE) // dc.TILE_WIDTH)
-                ].char
+                ]
+                tile_fg = tile.fg
+                tile_bg = tile.bg
+                tile_char = tile.char
 
         if event.type == pygame.KEYDOWN:
             if popup and popup.does_input:
@@ -149,9 +159,12 @@ while run:
                     event.key == pygame.K_SPACE):
                 if not popup.next():
                     popup = None
-            elif event.key == pygame.K_c:
+            elif event.key == pygame.K_f:
                 popup = dialogue
-                popup.set(text=[color_prompt])
+                popup.set(text=[fg_prompt])
+            elif event.key == pygame.K_b:
+                popup = dialogue
+                popup.set(text=[bg_prompt])
             elif event.key == pygame.K_t:
                 popup = dialogue
                 popup.set(text=[tile_prompt])
@@ -164,22 +177,26 @@ while run:
             elif event.key == pygame.K_v:
                 collision_view = not collision_view
             elif event.key == pygame.K_a:
-                print(tile_color)
-                print(tile_char)
+                print(tile_fg)
+                print(tile_bg)
 
     screen.fill(dc.BLACK)
 
     dm.draw_map(screen, map, collision_view)
 
     if not collision_view:
-        screen.blit(dp.char_sprites[ord(tile_char)], (
+        screen.blit(dc.SURFACES[tile_bg], (
             ((mouse_x // dc.SCALE) // dc.TILE_WIDTH)*dc.TILE_WIDTH,
             ((mouse_y // dc.SCALE) // dc.TILE_HEIGHT)*dc.TILE_HEIGHT,
         ))
-        screen.blit(dc.SURFACES[tile_color], (
+        copy = dp.char_sprites[ord(tile_char)]
+        copy.blit(dc.SURFACES[tile_fg], (
+            0, 0,
+        ), special_flags=pygame.BLEND_RGB_MIN)
+        screen.blit(copy, (
             ((mouse_x // dc.SCALE) // dc.TILE_WIDTH)*dc.TILE_WIDTH,
             ((mouse_y // dc.SCALE) // dc.TILE_HEIGHT)*dc.TILE_HEIGHT,
-        ), special_flags=pygame.BLEND_RGB_MIN)
+        ))
 
     if popup:
         popup.display(screen)

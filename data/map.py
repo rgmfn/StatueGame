@@ -7,27 +7,31 @@ class Tile:
     def __init__(
         self,
         char: str,
-        color: dc.Color,
+        fg: dc.Color,
+        bg: dc.Color = dc.Color.NONE,
         description: str = None,
         name: str = None,
         is_wall: bool = False,
     ):
         self.char = char
-        self.color = color
+        self.fg = fg
+        self.bg = bg
         self.description = description
         self.name = name
         self.is_wall = is_wall
         self.__set_sprite(char)
 
-    def set(self, char: str, color: dc.Color):
+    def set(self, char: str, fg: dc.Color, bg: dc.Color):
         self.char = char
-        self.color = color
+        self.fg = fg
+        self.bg = bg
         self.__set_sprite(char)
 
     def to_object(self):
         return {
             'char': self.char,
-            'color': self.color.name,
+            'fg': self.fg.name,
+            'bg': self.bg.name,
             'is_wall': self.is_wall,
         }
 
@@ -41,6 +45,7 @@ class Tile:
             dc.TILE_WIDTH,
             dc.TILE_HEIGHT,
         ))
+        self.sprite.set_colorkey(dc.BLACK)
 
     def __repr__(self):
         return self.char
@@ -58,7 +63,8 @@ def load_map(file) -> []:
             for tile in line:
                 new_line.append(Tile(
                     char=tile['char'],
-                    color=dc.Color[tile['color']],
+                    fg=dc.Color[tile['fg']],
+                    bg=dc.Color[tile['bg']],
                     is_wall=tile['is_wall']
                 ))
             new_map.append(new_line)
@@ -88,7 +94,7 @@ def empty_map(width: int, height: int):
             line_arr.append(
                 Tile(
                     char=' ',
-                    color=dc.Color.WHITE,
+                    fg=dc.Color.WHITE,
                     description='',
                 )
             )
@@ -108,20 +114,18 @@ def print_map(map):
 def draw_map(screen: pygame.Surface, map: [], collision_view: bool = False):
     for iy, row in enumerate(map):
         for ix, tile in enumerate(row):
-            screen.blit(tile.sprite, (
+            screen.blit(dc.SURFACES[tile.bg], (
                 ix * dc.TILE_WIDTH,
-                iy * dc.TILE_HEIGHT
+                iy * dc.TILE_HEIGHT,
             ))
-            if collision_view and tile.is_wall:
-                screen.blit(dc.SURFACES[tile.color], (
-                    ix * dc.TILE_WIDTH,
-                    iy * dc.TILE_HEIGHT,
-                ), special_flags=pygame.BLEND_RGB_MAX)
-            else:
-                screen.blit(dc.SURFACES[tile.color], (
-                    ix * dc.TILE_WIDTH,
-                    iy * dc.TILE_HEIGHT,
-                ), special_flags=pygame.BLEND_RGB_MIN)
+            copy = tile.sprite.copy()
+            copy.blit(dc.SURFACES[tile.fg], (
+                0, 0,
+            ), special_flags=pygame.BLEND_RGB_MIN),
+            screen.blit(copy, (
+                ix * dc.TILE_WIDTH,
+                iy * dc.TILE_HEIGHT,
+            ))
 
 
 """
