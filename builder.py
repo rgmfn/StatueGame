@@ -3,6 +3,7 @@ import pygame
 import data.constants as dc
 import data.popup as dp
 import data.map as dm
+import data.tile as dt
 
 pygame.init()
 
@@ -18,7 +19,7 @@ pygame.display.set_caption('Level Builder')
 
 mainClock = pygame.time.Clock()
 
-tile = dm.Tile(
+tile = dt.Tile(
     char='d',
     fg=dc.Color.RED,
     description='A cute red dog',
@@ -59,7 +60,7 @@ test_popup.set(
 
 popup = None
 
-map = dm.empty_map(dc.TILES_WIDE, dc.TILES_TALL)
+map = dm.Map()
 collision_view = False
 
 tile_fg = dc.Color.WHITE
@@ -95,17 +96,15 @@ def get_popup_value():
         elif len(popup.input) == 1:
             tile_char = popup.input
     elif popup.text == [[save_prompt]]:
-        dm.save_map(map, popup.input + '.json')
+        map.save(popup.input + '.json')
     elif popup.text == [[load_prompt]]:
-        map = dm.load_map(popup.input + '.json')
+        map.load(popup.input + '.json')
 
 
 mouse_x, mouse_y = pygame.mouse.get_pos()
 
 ctr = 0
 run = True
-# TODO? split keyboard and mouse input into separate methods
-# TODO add drag click for setting tiles
 while run:
 
     mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -114,32 +113,31 @@ while run:
         if event.type == pygame.QUIT:
             run = False
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        elif event.type == pygame.MOUSEMOTION:
+            if event.buttons[0] and not collision_view:
+                map.set_by_mouse(
+                    mouse_x, mouse_y, tile_char, tile_fg, tile_bg
+                )
+            elif event.buttons[2]:
+                map.set_by_mouse(
+                    mouse_x, mouse_y, char=' ',
+                    fg=dc.Color.NONE, bg=dc.Color.NONE,
+                )
+        elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 if collision_view:
-                    map[
-                        ((mouse_y // dc.SCALE) // dc.TILE_HEIGHT)
-                    ][
-                        ((mouse_x // dc.SCALE) // dc.TILE_WIDTH)
-                    ].flip_wall()
+                    map.flip_wall_mouse(mouse_x, mouse_y)
                 else:
-                    map[
-                        ((mouse_y // dc.SCALE) // dc.TILE_HEIGHT)
-                    ][
-                        ((mouse_x // dc.SCALE) // dc.TILE_WIDTH)
-                    ].set(tile_char, tile_fg, tile_bg)
+                    map.set_by_mouse(
+                        mouse_x, mouse_y, tile_char, tile_fg, tile_bg
+                    )
             elif event.button == 2:
-                map[
-                    ((mouse_y // dc.SCALE) // dc.TILE_HEIGHT)
-                ][
-                    ((mouse_x // dc.SCALE) // dc.TILE_WIDTH)
-                ].set(char=' ', fg=dc.Color.NONE, bg=dc.Color.NONE)
+                map.set_by_mouse(
+                    mouse_x, mouse_y, char=' ',
+                    fg=dc.Color.NONE, bg=dc.Color.NONE,
+                )
             elif event.button == 3:
-                tile = map[
-                    ((mouse_y // dc.SCALE) // dc.TILE_HEIGHT)
-                ][
-                    ((mouse_x // dc.SCALE) // dc.TILE_WIDTH)
-                ]
+                tile = map.get_by_mouse(mouse_x, mouse_y)
                 tile_fg = tile.fg
                 tile_bg = tile.bg
                 tile_char = tile.char
@@ -179,17 +177,21 @@ while run:
             elif event.key == pygame.K_a:
                 print(tile_fg)
                 print(tile_bg)
+            elif event.key == pygame.K_d:
+                print(map.width, map.height)
+            elif event.key == pygame.K_m:
+                print(map)
 
     screen.fill(dc.BLACK)
 
-    dm.draw_map(screen, map, collision_view)
+    map.draw(screen, collision_view)
 
     if not collision_view:
         screen.blit(dc.SURFACES[tile_bg], (
             ((mouse_x // dc.SCALE) // dc.TILE_WIDTH)*dc.TILE_WIDTH,
             ((mouse_y // dc.SCALE) // dc.TILE_HEIGHT)*dc.TILE_HEIGHT,
         ))
-        copy = dp.char_sprites[ord(tile_char)]
+        copy = dc.char_sprites[ord(tile_char)]
         copy.blit(dc.SURFACES[tile_fg], (
             0, 0,
         ), special_flags=pygame.BLEND_RGB_MIN)

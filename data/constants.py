@@ -45,3 +45,14 @@ SURFACES = {Color[color]: base_surface.copy() for color in color_names}
 
 for name, color in zip(color_names, color_list):
     SURFACES[Color[name]].fill(color)
+
+char_sprites = [
+    spritesheet.subsurface((
+        (i % SPRITES_PER_ROW) * TILE_WIDTH,
+        (i // SPRITES_PER_ROW) * TILE_HEIGHT,
+        TILE_WIDTH,
+        TILE_HEIGHT,
+    )) for i in range(0, 256)
+]
+for sprite in char_sprites:
+    sprite.set_colorkey(BLACK)

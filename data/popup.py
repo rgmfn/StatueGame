@@ -1,24 +1,14 @@
 import data.constants as dc
 import data.map as dm
+import data.tile as dt
 import pygame
 
-char_sprites = [
-    dc.spritesheet.subsurface((
-        (i % dc.SPRITES_PER_ROW) * dc.TILE_WIDTH,
-        (i // dc.SPRITES_PER_ROW) * dc.TILE_HEIGHT,
-        dc.TILE_WIDTH,
-        dc.TILE_HEIGHT,
-    )) for i in range(0, 256)
-]
-for sprite in char_sprites:
-    sprite.set_colorkey(dc.BLACK)
-
-TOP_LEFT = char_sprites[218]
-TOP_RIGHT = char_sprites[191]
-BOTTOM_LEFT = char_sprites[192]
-BOTTOM_RIGHT = char_sprites[217]
-SIDE = char_sprites[179]
-TOP = char_sprites[196]
+TOP_LEFT = dc.char_sprites[218]
+TOP_RIGHT = dc.char_sprites[191]
+BOTTOM_LEFT = dc.char_sprites[192]
+BOTTOM_RIGHT = dc.char_sprites[217]
+SIDE = dc.char_sprites[179]
+TOP = dc.char_sprites[196]
 
 
 class Popup:
@@ -73,7 +63,7 @@ class Popup:
             self,
             text: [str],
             pos: pygame.Rect = pygame.Rect(0, 0, 0, 0,),
-            speaker: dm.Tile = None,
+            speaker: dt.Tile = None,
     ):
         self.is_set = True
         self.text = text
@@ -172,7 +162,7 @@ class Popup:
         for ix in range(self.box_width):
             if (self.box_num < len(self.text)-1 and
                     self.box_width-5 < ix < self.box_width-1):
-                screen.blit(char_sprites['.'], (
+                screen.blit(dc.char_sprites['.'], (
                     (self.x+ix+1)*dc.TILE_WIDTH,  # +1 bc not top left
                     (self.y+self.box_height+1)*dc.TILE_HEIGHT,
                 ))
@@ -205,7 +195,7 @@ class Popup:
         for iy, line in enumerate(box):
             for ix, char in enumerate(line):
                 if char != ' ':
-                    screen.blit(char_sprites[ord(char)], (
+                    screen.blit(dc.char_sprites[ord(char)], (
                         (self.x+self.side_margin+ix+1)*dc.TILE_WIDTH,
                         (self.y+self.top_margin+1 +
                             iy*(self.line_space+1))*dc.TILE_HEIGHT)
@@ -217,21 +207,21 @@ class Popup:
         line = box[0]
         for ix, char in enumerate(line):
             if char != ' ':
-                screen.blit(char_sprites[ord(char)], (
+                screen.blit(dc.char_sprites[ord(char)], (
                     (self.x+self.side_margin+ix+1)*dc.TILE_WIDTH,
                     (self.y+self.top_margin+1)*dc.TILE_HEIGHT)
                 )
         ix = 0
         for char in self.input:
             if char != ' ':
-                screen.blit(char_sprites[ord(char)], (
+                screen.blit(dc.char_sprites[ord(char)], (
                     (self.x+self.side_margin+ix+1)*dc.TILE_WIDTH,
                     (self.y+self.top_margin+1 +
                         self.line_space+1)*dc.TILE_HEIGHT)
                 )
             ix += 1
         if ix < self.line_width:
-            screen.blit(char_sprites[ord('_')], (
+            screen.blit(dc.char_sprites[ord('_')], (
                 (self.x+self.side_margin+ix+1)*dc.TILE_WIDTH,
                 (self.y+self.top_margin+1 +
                     self.line_space+1)*dc.TILE_HEIGHT)
