@@ -54,6 +54,19 @@ class Popup:
             self.line_space
         )
 
+        self.black_sheet = pygame.Surface((
+            (self.box_width+2)*dc.TILE_WIDTH,
+            (self.box_height+2)*dc.TILE_HEIGHT,
+        ))
+        pygame.transform.scale(
+            dc.SURFACES[dc.Color.BLACK],
+            (
+                (self.box_width+2)*dc.TILE_WIDTH,
+                (self.box_height+2)*dc.TILE_HEIGHT,
+            ),
+            self.black_sheet,
+        )
+
         self.is_set = False
 
     def set(
@@ -229,7 +242,10 @@ class Popup:
             print('Error: popup not set')
             return
 
-        # TODO render scaled black sheet below popup
+        screen.blit(self.black_sheet, (
+            self.x*dc.TILE_WIDTH,
+            self.y*dc.TILE_HEIGHT,
+        ))
 
         self.display_top(screen)
         self.display_bottom(screen)

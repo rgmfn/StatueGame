@@ -114,12 +114,14 @@ def print_map(map):
 def draw_map(screen: pygame.Surface, map: [], collision_view: bool = False):
     for iy, row in enumerate(map):
         for ix, tile in enumerate(row):
-            screen.blit(dc.SURFACES[tile.bg], (
+            fg = tile.bg if collision_view and tile.is_wall else tile.fg
+            bg = tile.fg if collision_view and tile.is_wall else tile.bg
+            screen.blit(dc.SURFACES[bg], (
                 ix * dc.TILE_WIDTH,
                 iy * dc.TILE_HEIGHT,
             ))
             copy = tile.sprite.copy()
-            copy.blit(dc.SURFACES[tile.fg], (
+            copy.blit(dc.SURFACES[fg], (
                 0, 0,
             ), special_flags=pygame.BLEND_RGB_MIN),
             screen.blit(copy, (

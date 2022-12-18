@@ -105,7 +105,7 @@ mouse_x, mouse_y = pygame.mouse.get_pos()
 ctr = 0
 run = True
 # TODO? split keyboard and mouse input into separate methods
-# add drag click for setting tiles
+# TODO add drag click for setting tiles
 while run:
 
     mouse_x, mouse_y = pygame.mouse.get_pos()
