@@ -4,8 +4,8 @@ import data.constants as dc
 class Tile:
     def __init__(
         self,
-        char: str,
-        fg: dc.Color,
+        char: str = ' ',
+        fg: dc.Color = dc.Color.NONE,
         bg: dc.Color = dc.Color.NONE,
         description: str = None,
         name: str = None,

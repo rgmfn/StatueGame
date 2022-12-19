@@ -12,7 +12,7 @@ class Map:
         self.height = dc.TILES_TALL
         self.map = self.create_empty(self.width, self.height)
 
-    def load(self, file) -> []:
+    def load(self, file):
         with open(f'assets/map/{file}', 'r') as f:
 
             obj = json.loads(f.readline())
@@ -30,7 +30,7 @@ class Map:
                     ))
                 new_map.append(new_line)
 
-            return new_map
+            self.map = new_map
 
     def save(self, file: str):
         with open(f'assets/map/{file}', 'w') as f:
@@ -44,30 +44,33 @@ class Map:
             obj = {'map': new_map, 'descriptions': []}
 
             f.write(json.dumps(obj))
-            print(json.dumps(obj, indent=4))
+            # print(json.dumps(obj, indent=4))
 
     def create_empty(self, width: int, height: int) -> []:
         map = []
         for _ in range(height):
             line_arr = []
             for _ in range(width):
-                line_arr.append(
-                    dt.Tile(
-                        char=' ',
-                        fg=dc.Color.WHITE,
-                        description='',
-                    )
-                )
+                line_arr.append(dt.Tile())
 
             map.append(line_arr)
 
         return map
 
-    def __repr__(self):
+    def print_colors(self):
         for row in self.map:
             for tile in row:
-                print(tile, end='')
+                print(tile.fg, end=',')
             print()
+
+    def __repr__(self):
+        str = ''
+        for row in self.map:
+            for tile in row:
+                str += tile
+            str += '\n'
+
+        return str
 
     # TODO place white char, turn color to red -> placed chars turn red
     # TODO set fg red -> set fg blue -> weird color
@@ -83,7 +86,8 @@ class Map:
                 copy = tile.sprite.copy()
                 copy.blit(dc.SURFACES[fg], (
                     0, 0,
-                ), special_flags=pygame.BLEND_RGB_MIN),
+                ), special_flags=pygame.BLEND_RGBA_MIN)
+                # ))
                 screen.blit(copy, (
                     ix * dc.TILE_WIDTH,
                     iy * dc.TILE_HEIGHT,
@@ -94,13 +98,17 @@ class Map:
         mouse_x: int,
         mouse_y: int,
         char: str,
-        fg: dc.Color,
-        bg: dc.Color,
+        fg: int,
+        bg: int,
     ):
         map_x = (mouse_x // dc.SCALE) // dc.TILE_WIDTH
         map_y = (mouse_y // dc.SCALE) // dc.TILE_HEIGHT
         if map_x < self.width and map_y < self.height:
-            self.map[map_y][map_x].set(char=char, fg=fg, bg=bg)
+            self.map[map_y][map_x].set(
+                char=char,
+                fg=fg,
+                bg=bg,
+            )
 
     def get_by_mouse(self, mouse_x: int, mouse_y: int):
         map_x = (mouse_x // dc.SCALE) // dc.TILE_WIDTH

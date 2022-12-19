@@ -103,7 +103,6 @@ def get_popup_value():
 
 mouse_x, mouse_y = pygame.mouse.get_pos()
 
-ctr = 0
 run = True
 while run:
 
@@ -129,14 +128,16 @@ while run:
                     map.flip_wall_mouse(mouse_x, mouse_y)
                 else:
                     map.set_by_mouse(
-                        mouse_x, mouse_y, tile_char, tile_fg, tile_bg
+                        mouse_x, mouse_y, tile_char,
+                        tile_fg, tile_bg,
                     )
-            elif event.button == 2:
+                    # tile_fg = dc.Color.PINK
+            elif event.button == 3:
                 map.set_by_mouse(
                     mouse_x, mouse_y, char=' ',
                     fg=dc.Color.NONE, bg=dc.Color.NONE,
                 )
-            elif event.button == 3:
+            elif event.button == 2:
                 tile = map.get_by_mouse(mouse_x, mouse_y)
                 tile_fg = tile.fg
                 tile_bg = tile.bg
@@ -177,10 +178,6 @@ while run:
             elif event.key == pygame.K_a:
                 print(tile_fg)
                 print(tile_bg)
-            elif event.key == pygame.K_d:
-                print(map.width, map.height)
-            elif event.key == pygame.K_m:
-                print(map)
 
     screen.fill(dc.BLACK)
 
@@ -191,10 +188,10 @@ while run:
             ((mouse_x // dc.SCALE) // dc.TILE_WIDTH)*dc.TILE_WIDTH,
             ((mouse_y // dc.SCALE) // dc.TILE_HEIGHT)*dc.TILE_HEIGHT,
         ))
-        copy = dc.char_sprites[ord(tile_char)]
+        copy = dc.char_sprites[ord(tile_char)].copy()
         copy.blit(dc.SURFACES[tile_fg], (
             0, 0,
-        ), special_flags=pygame.BLEND_RGB_MIN)
+        ), special_flags=pygame.BLEND_RGBA_MIN)
         screen.blit(copy, (
             ((mouse_x // dc.SCALE) // dc.TILE_WIDTH)*dc.TILE_WIDTH,
             ((mouse_y // dc.SCALE) // dc.TILE_HEIGHT)*dc.TILE_HEIGHT,
@@ -212,8 +209,6 @@ while run:
         display,
     )
 
-    # print(ctr)
-    # ctr += 1
     pygame.display.update()
     mainClock.tick(30)
 
