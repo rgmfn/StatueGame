@@ -87,7 +87,6 @@ class Map:
                 copy.blit(dc.SURFACES[fg], (
                     0, 0,
                 ), special_flags=pygame.BLEND_RGBA_MIN)
-                # ))
                 screen.blit(copy, (
                     ix * dc.TILE_WIDTH,
                     iy * dc.TILE_HEIGHT,

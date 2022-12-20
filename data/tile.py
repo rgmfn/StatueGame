@@ -17,7 +17,7 @@ class Tile:
         self.description = description
         self.name = name
         self.is_wall = is_wall
-        self.__set_sprite(char)
+        self.sprite = dc.char_sprites[ord(char)]
 
     def set(self, char: str, fg: dc.Color, bg: dc.Color):
         self.char = char
@@ -37,15 +37,6 @@ class Tile:
 
     def flip_wall(self):
         self.is_wall = not self.is_wall
-
-    def __set_sprite(self, char: str):
-        self.sprite = dc.spritesheet.subsurface((
-            (ord(char) % dc.SPRITES_PER_ROW) * dc.TILE_WIDTH,
-            (ord(char) // dc.SPRITES_PER_ROW) * dc.TILE_HEIGHT,
-            dc.TILE_WIDTH,
-            dc.TILE_HEIGHT,
-        ))
-        self.sprite.set_colorkey(dc.BLACK)
 
     def copy(self):
         return Tile(

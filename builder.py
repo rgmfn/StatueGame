@@ -142,10 +142,7 @@ while run:
                     mouse_x, mouse_y, dt.Tile(),
                 )
             elif event.button == 2:
-                tile = map.get_by_mouse(mouse_x, mouse_y)
-                mouse_tile.fg = tile.fg
-                mouse_tile.bg = tile.bg
-                mouse_tile.char = tile.char
+                mouse_tile = map.get_by_mouse(mouse_x, mouse_y).copy()
 
         if event.type == pygame.KEYDOWN:
             if popup and popup.does_input:

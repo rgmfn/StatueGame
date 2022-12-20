@@ -17,23 +17,60 @@ SCREEN_HEIGHT = TILE_HEIGHT * TILES_TALL
 DISPLAY_WIDTH = SCREEN_WIDTH * SCALE
 DISPLAY_HEIGHT = SCREEN_HEIGHT * SCALE
 
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-GRAY = (133, 142, 209)
-RED = (185, 11, 11)  # TODO too close to pink, not red enough
-ORANGE = (255, 174, 66)  # TODO too close to yellow
-YELLOW = (255, 243, 33)
-GREEN = (37, 142, 112)
-BLUE = (52, 142, 199)
-PURPLE = (126, 78, 172)
-PINK = (220, 55, 83)
+PUREBLACK = (0, 0, 0)
+RED = (160, 20, 10)
+ORANGE = (220, 50, 20)
+YELLOW = (230, 170, 30)
+GREEN = (80, 135, 20)
+LGREEN = (125, 185, 55)
+CYAN = (25, 140, 140)
+LCYAN = (60, 205, 190)
+BLUE = (45, 90, 160)
+LBLUE = (105, 135, 225)
+PINK = (190, 110, 185)
+PURPLE = (135, 60, 130)
+BROWN = (150, 75, 55)
+BLACK = (21, 19, 15)
+GRAY = (116, 110, 113)
+LGRAY = (178, 175, 172)
+WHITE = (232, 227, 232)
 
 color_names = [
-    'WHITE', 'GRAY', 'RED', 'ORANGE', 'YELLOW', 'GREEN',
-    'BLUE', 'PURPLE', 'PINK', 'BLACK', 'NONE'
+    'BLACK',
+    'BLUE',
+    'GREEN',
+    'CYAN',
+    'RED',
+    'PURPLE',
+    'BROWN',
+    'LGRAY',
+    'GRAY',
+    'LBLUE',
+    'LGREEN',
+    'LCYAN',
+    'ORANGE',
+    'PINK',
+    'YELLOW',
+    'WHITE',
+    'NONE',
 ]
 color_list = [
-    WHITE, GRAY, RED, ORANGE, YELLOW, GREEN, BLUE, PURPLE, PINK, BLACK
+    BLACK,
+    BLUE,
+    GREEN,
+    CYAN,
+    RED,
+    PURPLE,
+    BROWN,
+    LGRAY,
+    GRAY,
+    LBLUE,
+    LGREEN,
+    LCYAN,
+    ORANGE,
+    PINK,
+    YELLOW,
+    WHITE,
 ]
 Color = Enum('Color', color_names)
 
@@ -55,4 +92,4 @@ char_sprites = [
     )) for i in range(0, 256)
 ]
 for sprite in char_sprites:
-    sprite.set_colorkey(BLACK)
+    sprite.set_colorkey(PUREBLACK)

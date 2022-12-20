@@ -76,7 +76,7 @@ class Popup:
         self.y = pos.y
         self.w = pos.w
         self.h = pos.h
-        self.speaker = speaker if speaker.name else None
+        self.speaker = speaker if speaker and speaker.name else None
         self.input_prompt = input_prompt
         self.input_line = 0
 
