@@ -26,7 +26,8 @@ class Map:
                         char=tile['char'],
                         fg=dc.Color[tile['fg']],
                         bg=dc.Color[tile['bg']],
-                        is_wall=tile['is_wall']
+                        is_wall=tile['is_wall'],
+                        description=tile['description'],
                     ))
                 new_map.append(new_line)
 
@@ -72,8 +73,6 @@ class Map:
 
         return str
 
-    # TODO place white char, turn color to red -> placed chars turn red
-    # TODO set fg red -> set fg blue -> weird color
     def draw(self, screen: pygame.Surface, collision_view: bool = False):
         for iy, row in enumerate(self.map):
             for ix, tile in enumerate(row):
@@ -97,18 +96,12 @@ class Map:
         self,
         mouse_x: int,
         mouse_y: int,
-        char: str,
-        fg: int,
-        bg: int,
+        tile: dt.Tile,
     ):
         map_x = (mouse_x // dc.SCALE) // dc.TILE_WIDTH
         map_y = (mouse_y // dc.SCALE) // dc.TILE_HEIGHT
         if map_x < self.width and map_y < self.height:
-            self.map[map_y][map_x].set(
-                char=char,
-                fg=fg,
-                bg=bg,
-            )
+            self.map[map_y][map_x] = tile
 
     def get_by_mouse(self, mouse_x: int, mouse_y: int):
         map_x = (mouse_x // dc.SCALE) // dc.TILE_WIDTH

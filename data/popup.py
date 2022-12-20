@@ -24,8 +24,10 @@ class Popup:
         self.num_lines: int = num_lines
         self.line_width: int = line_width
         self.does_input: str = does_input
-        self.input = ''
+        self.input = ['']
+        self.input_prompt = None
         self.line_space: int = line_space
+        self.input_line = 0
 
         self.side_margin: int = side_margin
         self.top_margin: int = top_margin
@@ -61,19 +63,22 @@ class Popup:
 
     def set(
             self,
-            text: [str],
+            input_prompt: str = None,
+            text: [str] = None,
             pos: pygame.Rect = pygame.Rect(0, 0, 0, 0,),
             speaker: dt.Tile = None,
     ):
         self.is_set = True
         self.text = text
         self.box_num = 0
-        self.input = ''
+        self.input = ['']
         self.x = pos.x
         self.y = pos.y
         self.w = pos.w
         self.h = pos.h
         self.speaker = speaker
+        self.input_prompt = input_prompt
+        self.input_line = 0
 
         self.parse_text()
 
@@ -82,21 +87,40 @@ class Popup:
         Returns True if there is still more text.
         """
         self.box_num += 1
-        return self.box_num == len(self.text)
+        return self.box_num < len(self.text)
 
     def type(self, unicode: str):
         if not self.does_input:
             return
 
         if unicode == '\x08':
-            self.input = self.input[:-1] if len(self.input) > 1 else ''
-        elif len(self.input)+1 <= self.line_width:
-            self.input += unicode
+            if len(self.input[self.input_line]) > 0:  # 3
+                self.input[self.input_line] = self.input[self.input_line][:-1]
+            elif self.input_line == 0:  # 1
+                pass
+            else:  # 2
+                self.input.pop(-1)
+                self.input_line -= 1
+                self.input[self.input_line] = self.input[self.input_line][:-1]
+        else:
+            if len(self.input[self.input_line]) < self.line_width:  # 4
+                self.input[self.input_line] += unicode
+            elif self.input_prompt and self.input_line == self.num_lines-1:
+                pass  # 6
+            elif not self.input_prompt and self.input_line == self.num_lines:
+                pass
+            else:  # 5
+                self.input.append('')
+                self.input_line += 1
+                self.input[self.input_line] += unicode
 
         # print(self.input)
 
     def parse_text(self):
         parsed_text = []
+
+        if self.text is None:
+            return
 
         for phrase in self.text:
             box = []
@@ -160,9 +184,9 @@ class Popup:
         ))
 
         for ix in range(self.box_width):
-            if (self.box_num < len(self.text)-1 and
+            if (self.text and self.box_num < len(self.text)-1 and
                     self.box_width-5 < ix < self.box_width-1):
-                screen.blit(dc.char_sprites['.'], (
+                screen.blit(dc.char_sprites[ord('.')], (
                     (self.x+ix+1)*dc.TILE_WIDTH,  # +1 bc not top left
                     (self.y+self.box_height+1)*dc.TILE_HEIGHT,
                 ))
@@ -203,28 +227,30 @@ class Popup:
 
     def display_input(self, screen: pygame.Surface):
         assert self.num_lines >= 2  # needs 2 lines for input
-        box = self.text[0]
-        line = box[0]
-        for ix, char in enumerate(line):
-            if char != ' ':
-                screen.blit(dc.char_sprites[ord(char)], (
-                    (self.x+self.side_margin+ix+1)*dc.TILE_WIDTH,
-                    (self.y+self.top_margin+1)*dc.TILE_HEIGHT)
-                )
-        ix = 0
-        for char in self.input:
-            if char != ' ':
-                screen.blit(dc.char_sprites[ord(char)], (
-                    (self.x+self.side_margin+ix+1)*dc.TILE_WIDTH,
-                    (self.y+self.top_margin+1 +
-                        self.line_space+1)*dc.TILE_HEIGHT)
-                )
-            ix += 1
+        if self.input_prompt:
+            for ix, char in enumerate(self.input_prompt):
+                if char != ' ':
+                    screen.blit(dc.char_sprites[ord(char)], (
+                        (self.x+self.side_margin+ix+1)*dc.TILE_WIDTH,
+                        (self.y+self.top_margin+1)*dc.TILE_HEIGHT)
+                    )
+        for iy, line in enumerate(self.input):
+            ix = 0
+            for char in line:
+                if char != ' ':
+                    screen.blit(dc.char_sprites[ord(char)], (
+                        (self.x+self.side_margin+ix+1)*dc.TILE_WIDTH,
+                        (self.y+self.top_margin+1 +
+                            (iy+int(self.input_prompt is not None)) *
+                            (self.line_space+1))*dc.TILE_HEIGHT)
+                    )
+                ix += 1
         if ix < self.line_width:
             screen.blit(dc.char_sprites[ord('_')], (
                 (self.x+self.side_margin+ix+1)*dc.TILE_WIDTH,
                 (self.y+self.top_margin+1 +
-                    self.line_space+1)*dc.TILE_HEIGHT)
+                    (iy+int(self.input_prompt is not None)) *
+                    (self.line_space+1))*dc.TILE_HEIGHT)
             )
 
     def display(self, screen: pygame.Surface):

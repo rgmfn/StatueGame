@@ -1,6 +1,7 @@
 import pygame
 
 import data.constants as dc
+import data.popup as dp
 import data.map as dm
 
 pygame.init()
@@ -18,16 +19,43 @@ pygame.display.set_caption('Statue Meditation')
 mainClock = pygame.time.Clock()
 
 player = {
-    'x': 3,
-    'y': 3,
-    'sprite': dc.spritesheet.subsurface((
-                dc.TILE_WIDTH,
-                0,
-                dc.TILE_WIDTH,
-                dc.TILE_HEIGHT
-            )),
-    'color': dc.Color.GREEN
+    'x': 0,
+    'y': 0,
+    'sprite': dc.SURFACES[dc.Color.BLACK].copy(),
 }
+_player_color = dc.Color.GREEN
+_player_sprite = dc.char_sprites[1].copy()
+_player_sprite.blit(dc.SURFACES[_player_color], (
+    0, 0
+), special_flags=pygame.BLEND_RGB_MIN)
+player['sprite'].blit(_player_sprite, (0, 0))
+
+cursor = {
+    'x': 0,
+    'y': 0,
+    'sprite': dc.SURFACES[dc.Color.BLACK].copy(),
+}
+_cursor_color = dc.Color.YELLOW
+_cursor_sprite = dc.char_sprites[ord('x')].copy()
+_cursor_sprite.blit(dc.SURFACES[_cursor_color], (
+    0, 0
+), special_flags=pygame.BLEND_RGB_MIN)
+cursor['sprite'].blit(_cursor_sprite, (0, 0))
+
+
+# TODO make character/entity class for player and cursor
+def display_cursor():
+    if map.map[cursor['x']][cursor['y']].name:  # can speak to
+        # red
+        pass
+    elif map.map[cursor['x']][cursor['y']].description:  # description of
+        # orange
+        pass
+    else:  # normal cursor
+        pass
+
+
+view_mode = False
 
 
 def move_player(event):
@@ -42,17 +70,43 @@ def move_player(event):
     elif event.key in RIGHT_KEYS:
         delta_x += 1
 
-    if not map[player['y']+delta_y][player['x']+delta_x].is_wall:
+    if not map.map[player['y']+delta_y][player['x']+delta_x].is_wall:
         player['x'] += delta_x
         player['y'] += delta_y
+
+
+def move_cursor(event):
+    global popup
+    delta_x = 0
+    delta_y = 0
+    if event.key in UP_KEYS:
+        delta_y -= 1
+    elif event.key in DOWN_KEYS:
+        delta_y += 1
+    if event.key in LEFT_KEYS:
+        delta_x -= 1
+    elif event.key in RIGHT_KEYS:
+        delta_x += 1
+    elif event.key in ACTION_KEYS:
+        description = map.map[cursor['y']][cursor['x']].description
+        if description is not None:
+            popup = dialogue
+            popup.set(text=[description])
+
+    cursor['x'] += delta_x
+    cursor['y'] += delta_y
 
 
 UP_KEYS = [pygame.K_UP, pygame.K_i]
 DOWN_KEYS = [pygame.K_DOWN, pygame.K_k]
 LEFT_KEYS = [pygame.K_LEFT, pygame.K_j]
 RIGHT_KEYS = [pygame.K_RIGHT, pygame.K_l]
+VIEW_KEYS = [pygame.K_LCTRL, pygame.K_RCTRL]
+ACTION_KEYS = [pygame.K_SPACE, pygame.K_RETURN]
+QUIT_KEYS = [pygame.K_ESCAPE]
 
-map = dm.load_map('test.json')
+map = dm.Map()
+map.load('house.json')
 # map = dm.empty_map(dc.TILES_WIDE, dc.TILES_TALL)
 # dm.print_map(map)
 
@@ -60,6 +114,15 @@ map = dm.load_map('test.json')
 # test_surf = pygame.Surface((dc.TILE_WIDTH, dc.TILE_HEIGHT))
 # test_surf.set_alpha(100)
 # test_surf.fill(test_color)
+
+dialogue: dp.Popup = dp.Popup(
+    num_lines=2,
+    line_width=15,
+    side_margin=1,
+    top_margin=1,
+    line_space=1,
+)
+popup = None
 
 run = True
 while run:
@@ -74,22 +137,40 @@ while run:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 run = False
+            elif event.key in VIEW_KEYS:
+                view_mode = not view_mode
+                if view_mode:
+                    cursor['x'] = player['x']
+                    cursor['y'] = player['y']
+            elif (event.key in ACTION_KEYS and
+                    popup and not popup.does_input):
+                if not popup.next():
+                    popup = None
+            elif event.key == pygame.K_d:
+                print(map.map[cursor['y']][cursor['x']].description)
+            elif view_mode:
+                move_cursor(event)
             else:
                 move_player(event)
 
     screen.fill(dc.BLACK)
 
-    dm.draw_map(screen, map)
+    map.draw(screen)
 
     screen.blit(player['sprite'], (
         player['x']*dc.TILE_WIDTH,
         player['y']*dc.TILE_HEIGHT
     ))
-    screen.blit(
-        dc.SURFACES[player['color']],
-        (player['x']*dc.TILE_WIDTH, player['y']*dc.TILE_HEIGHT),
-        special_flags=pygame.BLEND_RGB_MIN
-    )
+
+    if view_mode:
+        # display_cursor()
+        screen.blit(cursor['sprite'], (
+            cursor['x']*dc.TILE_WIDTH,
+            cursor['y']*dc.TILE_HEIGHT
+        ))
+
+    if popup:
+        popup.display(screen)
 
     pygame.transform.scale(
         screen,

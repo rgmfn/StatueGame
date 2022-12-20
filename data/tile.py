@@ -31,6 +31,7 @@ class Tile:
             'fg': self.fg.name,
             'bg': self.bg.name,
             'is_wall': self.is_wall,
+            'description': self.description,
         }
 
     def flip_wall(self):
@@ -44,6 +45,16 @@ class Tile:
             dc.TILE_HEIGHT,
         ))
         self.sprite.set_colorkey(dc.BLACK)
+
+    def copy(self):
+        return Tile(
+            char=self.char,
+            fg=self.fg,
+            bg=self.bg,
+            description=self.description,
+            name=self.name,
+            is_wall=self.is_wall,
+        )
 
     def __repr__(self):
         return self.char
