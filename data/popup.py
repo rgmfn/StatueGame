@@ -76,7 +76,7 @@ class Popup:
         self.y = pos.y
         self.w = pos.w
         self.h = pos.h
-        self.speaker = speaker
+        self.speaker = speaker if speaker.name else None
         self.input_prompt = input_prompt
         self.input_line = 0
 
@@ -116,6 +116,7 @@ class Popup:
 
         # print(self.input)
 
+    # TODO just make it store an array of strings not an array of arrays
     def parse_text(self):
         parsed_text = []
 
@@ -161,11 +162,14 @@ class Popup:
 
         for ix in range(self.box_width):
             if self.speaker and ix < len(self.speaker.name):
-                for c in self.speaker.name:
-                    pass
-                    # screen.blit(alphabet_sprites()
-
-                    # )
+                screen.blit(dc.char_sprites[ord(self.speaker.name[ix])], (
+                    (self.x+ix+1)*dc.TILE_WIDTH,  # +1 bc not top left
+                    self.y*dc.TILE_HEIGHT,
+                ))
+                screen.blit(dc.SURFACES[self.speaker.fg], (
+                    (self.x+ix+1)*dc.TILE_WIDTH,  # +1 bc not top left
+                    self.y*dc.TILE_HEIGHT,
+                ), special_flags=pygame.BLEND_RGB_MIN)
             else:
                 screen.blit(TOP, (
                     (self.x+ix+1)*dc.TILE_WIDTH,  # +1 bc not top left

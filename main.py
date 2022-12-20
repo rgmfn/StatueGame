@@ -33,26 +33,32 @@ player['sprite'].blit(_player_sprite, (0, 0))
 cursor = {
     'x': 0,
     'y': 0,
-    'sprite': dc.SURFACES[dc.Color.BLACK].copy(),
+    'sprite': dc.char_sprites[ord('x')],
 }
-_cursor_color = dc.Color.YELLOW
-_cursor_sprite = dc.char_sprites[ord('x')].copy()
-_cursor_sprite.blit(dc.SURFACES[_cursor_color], (
-    0, 0
-), special_flags=pygame.BLEND_RGB_MIN)
-cursor['sprite'].blit(_cursor_sprite, (0, 0))
 
 
 # TODO make character/entity class for player and cursor
-def display_cursor():
-    if map.map[cursor['x']][cursor['y']].name:  # can speak to
-        # red
-        pass
-    elif map.map[cursor['x']][cursor['y']].description:  # description of
-        # orange
-        pass
+def display_cursor(screen, cursor):
+    screen.blit(dc.SURFACES[dc.Color.BLACK], (
+        cursor['x']*dc.TILE_WIDTH,
+        cursor['y']*dc.TILE_HEIGHT,
+    ))
+    copy = cursor['sprite'].copy()
+    color = None
+    if map.map[cursor['y']][cursor['x']].name:  # can speak to
+        color = dc.Color.RED
+    elif map.map[cursor['y']][cursor['x']].description:  # description of
+        color = dc.Color.ORANGE
     else:  # normal cursor
-        pass
+        color = dc.Color.YELLOW
+
+    copy.blit(dc.SURFACES[color], (
+        0, 0,
+    ), special_flags=pygame.BLEND_RGB_MIN)
+    screen.blit(copy, (
+        cursor['x']*dc.TILE_WIDTH,
+        cursor['y']*dc.TILE_HEIGHT,
+    ))
 
 
 view_mode = False
@@ -88,10 +94,10 @@ def move_cursor(event):
     elif event.key in RIGHT_KEYS:
         delta_x += 1
     elif event.key in ACTION_KEYS:
-        description = map.map[cursor['y']][cursor['x']].description
-        if description is not None:
+        tile = map.map[cursor['y']][cursor['x']]
+        if tile.description is not None:
             popup = dialogue
-            popup.set(text=[description])
+            popup.set(text=[tile.description], speaker=tile)
 
     cursor['x'] += delta_x
     cursor['y'] += delta_y
@@ -163,11 +169,11 @@ while run:
     ))
 
     if view_mode:
-        # display_cursor()
-        screen.blit(cursor['sprite'], (
-            cursor['x']*dc.TILE_WIDTH,
-            cursor['y']*dc.TILE_HEIGHT
-        ))
+        display_cursor(screen, cursor)
+        # screen.blit(cursor['sprite'], (
+        #     cursor['x']*dc.TILE_WIDTH,
+        #     cursor['y']*dc.TILE_HEIGHT
+        # ))
 
     if popup:
         popup.display(screen)

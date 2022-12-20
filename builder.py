@@ -23,7 +23,6 @@ mouse_tile = dt.Tile(
     char='d',
     fg=dc.Color.RED,
     description='A cute red dog',
-    # name='dog',
 )
 
 fg_prompt = 'Fg Color:'
@@ -31,6 +30,7 @@ bg_prompt = 'Bg Color:'
 tile_prompt = 'Tile:'
 save_prompt = 'Save map to:'
 load_prompt = 'Load map from:'
+name_prompt = 'Name:'
 
 dialogue: dp.Popup = dp.Popup(
     num_lines=2,
@@ -105,6 +105,8 @@ def get_popup_value():
         map.save(popup.input[0] + '.json')
     elif popup.input_prompt == load_prompt:
         map.load(popup.input[0] + '.json')
+    elif popup.input_prompt == name_prompt:
+        mouse_tile.name = popup.input[0]
 
 
 mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -182,6 +184,9 @@ while run:
                 collision_view = not collision_view
             elif event.key == pygame.K_p:
                 popup = test_popup
+            elif event.key == pygame.K_n:
+                popup = dialogue
+                popup.set(input_prompt=name_prompt)
             elif event.key == pygame.K_a:
                 print(mouse_tile.fg)
                 print(mouse_tile.bg)

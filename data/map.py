@@ -27,6 +27,7 @@ class Map:
                         fg=dc.Color[tile['fg']],
                         bg=dc.Color[tile['bg']],
                         is_wall=tile['is_wall'],
+                        name=tile['name'],
                         description=tile['description'],
                     ))
                 new_map.append(new_line)

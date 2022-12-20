@@ -31,6 +31,7 @@ class Tile:
             'fg': self.fg.name,
             'bg': self.bg.name,
             'is_wall': self.is_wall,
+            'name': self.name,
             'description': self.description,
         }
 
