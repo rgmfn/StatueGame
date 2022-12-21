@@ -39,7 +39,7 @@ cursor = {
 }
 
 
-# TODO make character/entity class for player and cursor
+# TODO? make character/entity class for player and cursor
 def display_cursor(screen, cursor):
     screen.blit(dc.SURFACES[dc.Color.BLACK], (
         cursor['x']*dc.TILE_WIDTH,
@@ -125,7 +125,7 @@ ACTION_KEYS = [pygame.K_SPACE, pygame.K_RETURN]
 QUIT_KEYS = [pygame.K_ESCAPE]
 
 map = dm.Map()
-map.load('house.json')
+map.load('overlook.json')
 # map = dm.empty_map(dc.TILES_WIDE, dc.TILES_TALL)
 # dm.print_map(map)
 
@@ -154,7 +154,9 @@ while run:
             run = False
 
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
+            if event.key in QUIT_KEYS and popup:
+                popup = None
+            elif event.key == pygame.K_ESCAPE:
                 run = False
             elif event.key in VIEW_KEYS:
                 view_mode = not view_mode
@@ -183,10 +185,6 @@ while run:
 
     if view_mode:
         display_cursor(screen, cursor)
-        # screen.blit(cursor['sprite'], (
-        #     cursor['x']*dc.TILE_WIDTH,
-        #     cursor['y']*dc.TILE_HEIGHT
-        # ))
 
     if popup:
         popup.display(screen)

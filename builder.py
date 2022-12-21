@@ -70,13 +70,14 @@ mouse_tile = dt.Tile(
 )
 
 
-def get_popup_value():
-    global mouse_tile
-    global map
+def get_popup_value(map, mouse_tile):
     if popup.input_prompt is None:
-        input = ''
-        for line in popup.input:
-            input += line
+        # input = ''
+        # for line in popup.input:
+        #     input += line
+        input = popup.input[0]
+        for i in range(1, len(popup.input)):
+            input += ' ' + popup.input[i].strip()
         mouse_tile.description = input
     elif popup.input_prompt == fg_prompt:
         input = popup.input[0].upper()
@@ -147,7 +148,7 @@ while run:
         if event.type == pygame.KEYDOWN:
             if popup and popup.does_input:
                 if event.key == pygame.K_RETURN:
-                    get_popup_value()
+                    get_popup_value(map, mouse_tile)
                     popup = None
                 elif event.key == pygame.K_ESCAPE:
                     popup = None

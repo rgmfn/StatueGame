@@ -1,3 +1,4 @@
+import pygame
 import data.constants as dc
 
 
@@ -47,6 +48,28 @@ class Tile:
             name=self.name,
             is_wall=self.is_wall,
         )
+
+    def draw(
+        self,
+        screen: pygame.Surface,
+        x: int,
+        y: int,
+        collision_view: bool = False,
+    ):
+        fg = self.bg if collision_view and self.is_wall else self.fg
+        bg = self.fg if collision_view and self.is_wall else self.bg
+        screen.blit(dc.SURFACES[bg], (
+            x * dc.TILE_WIDTH,
+            y * dc.TILE_HEIGHT,
+        ))
+        copy = self.sprite.copy()
+        copy.blit(dc.SURFACES[fg], (
+            0, 0,
+        ), special_flags=pygame.BLEND_RGBA_MIN)
+        screen.blit(copy, (
+            x * dc.TILE_WIDTH,
+            y * dc.TILE_HEIGHT,
+        ))
 
     def __repr__(self):
         return self.char

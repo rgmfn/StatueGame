@@ -77,27 +77,9 @@ class Map:
     def draw(self, screen: pygame.Surface, collision_view: bool = False):
         for iy, row in enumerate(self.map):
             for ix, tile in enumerate(row):
-                fg = tile.bg if collision_view and tile.is_wall else tile.fg
-                bg = tile.fg if collision_view and tile.is_wall else tile.bg
-                screen.blit(dc.SURFACES[bg], (
-                    ix * dc.TILE_WIDTH,
-                    iy * dc.TILE_HEIGHT,
-                ))
-                copy = tile.sprite.copy()
-                copy.blit(dc.SURFACES[fg], (
-                    0, 0,
-                ), special_flags=pygame.BLEND_RGBA_MIN)
-                screen.blit(copy, (
-                    ix * dc.TILE_WIDTH,
-                    iy * dc.TILE_HEIGHT,
-                ))
+                tile.draw(screen, ix, iy, collision_view)
 
-    def set_by_mouse(
-        self,
-        mouse_x: int,
-        mouse_y: int,
-        tile: dt.Tile,
-    ):
+    def set_by_mouse(self, mouse_x: int, mouse_y: int, tile: dt.Tile,):
         map_x = (mouse_x // dc.SCALE) // dc.TILE_WIDTH
         map_y = (mouse_y // dc.SCALE) // dc.TILE_HEIGHT
         if map_x < self.width and map_y < self.height:
@@ -108,21 +90,14 @@ class Map:
         map_y = (mouse_y // dc.SCALE) // dc.TILE_HEIGHT
         if map_x < self.width and map_y < self.height:
             return self.map[map_y][map_x]
+        else:
+            return None
 
     def flip_wall_mouse(self, mouse_x: int, mouse_y: int):
-        map_x = (mouse_x // dc.SCALE) // dc.TILE_WIDTH
-        map_y = (mouse_y // dc.SCALE) // dc.TILE_HEIGHT
-        if map_x < self.width and map_y < self.height:
-            self.map[map_y][map_x].flip_wall()
+        tile = self.get_by_mouse(mouse_x, mouse_y)
+        if tile:
+            tile.flip_wall()
 
     def is_walkable(self, x: int, y: int):
         return (0 <= x < dc.TILES_WIDE and 0 <= y < dc.TILES_TALL and
                 (not self.map[y][x].is_wall))
-
-    """
-    TODO
-     change class
-     make santa wishlist
-     make amazon wishlist
-     decide what to get family
-    """

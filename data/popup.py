@@ -89,27 +89,26 @@ class Popup:
         self.box_num += 1
         return self.box_num < len(self.text)
 
-    # TODO make button to go to next line
     def type(self, unicode: str):
         if not self.does_input:
             return
 
-        if unicode == '\x08':
+        if unicode == '\x09':
+            self.input.append('')
+            self.input_line += 1
+        elif unicode == '\x7f' and self.input_line > 0:
+            self.input.pop(-1)
+            self.input_line -= 1
+        elif unicode == '\x08':
             if len(self.input[self.input_line]) > 0:  # 3
                 self.input[self.input_line] = self.input[self.input_line][:-1]
-            elif self.input_line == 0:  # 1
-                pass
-            else:  # 2
+            elif self.input_line > 0:  # 2
                 self.input.pop(-1)
                 self.input_line -= 1
                 self.input[self.input_line] = self.input[self.input_line][:-1]
         else:
             if len(self.input[self.input_line]) < self.line_width:  # 4
                 self.input[self.input_line] += unicode
-            elif self.input_prompt and self.input_line == self.num_lines-1:
-                pass  # 6
-            elif not self.input_prompt and self.input_line == self.num_lines:
-                pass
             else:  # 5
                 self.input.append('')
                 self.input_line += 1
@@ -117,7 +116,7 @@ class Popup:
 
         # print(self.input)
 
-    # TODO just make it store an array of strings not an array of arrays
+    # TODO? just make it store an array of strings not an array of arrays
     def parse_text(self):
         parsed_text = []
 
