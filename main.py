@@ -33,6 +33,8 @@ player['sprite'].blit(_player_sprite, (0, 0))
 cursor = {
     'x': 0,
     'y': 0,
+    'jump_x': 4,  # how many spaces to jump around by
+    'jump_y': 3,  # how many spaces to jump around by
     'sprite': dc.char_sprites[ord('x')],
 }
 
@@ -71,14 +73,21 @@ def move_player(event):
         delta_y -= 1
     elif event.key in DOWN_KEYS:
         delta_y += 1
-    if event.key in LEFT_KEYS:
+    elif event.key in LEFT_KEYS:
         delta_x -= 1
     elif event.key in RIGHT_KEYS:
         delta_x += 1
+    else:
+        return
 
-    if not map.map[player['y']+delta_y][player['x']+delta_x].is_wall:
-        player['x'] += delta_x
-        player['y'] += delta_y
+    if event.mod == 1:  # shift
+        while map.is_walkable(x=player['x']+delta_x, y=player['y']+delta_y):
+            player['x'] += delta_x
+            player['y'] += delta_y
+    else:
+        if map.is_walkable(x=player['x']+delta_x, y=player['y']+delta_y):
+            player['x'] += delta_x
+            player['y'] += delta_y
 
 
 def move_cursor(event):
@@ -98,6 +107,10 @@ def move_cursor(event):
         if tile.description is not None:
             popup = dialogue
             popup.set(text=[tile.description], speaker=tile)
+
+    if event.mod == 1:  # shift
+        delta_x *= cursor['jump_x']
+        delta_y *= cursor['jump_y']
 
     cursor['x'] += delta_x
     cursor['y'] += delta_y
@@ -153,7 +166,7 @@ while run:
                 if not popup.next():
                     popup = None
             elif event.key == pygame.K_d:
-                print(map.map[cursor['y']][cursor['x']].description)
+                print(player['x'], player['y'])
             elif view_mode:
                 move_cursor(event)
             else:

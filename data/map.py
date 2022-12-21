@@ -115,6 +115,10 @@ class Map:
         if map_x < self.width and map_y < self.height:
             self.map[map_y][map_x].flip_wall()
 
+    def is_walkable(self, x: int, y: int):
+        return (0 <= x < dc.TILES_WIDE and 0 <= y < dc.TILES_TALL and
+                (not self.map[y][x].is_wall))
+
     """
     TODO
      change class

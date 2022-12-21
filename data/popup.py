@@ -89,6 +89,7 @@ class Popup:
         self.box_num += 1
         return self.box_num < len(self.text)
 
+    # TODO make button to go to next line
     def type(self, unicode: str):
         if not self.does_input:
             return
