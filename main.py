@@ -2,7 +2,7 @@ import pygame
 
 import data.constants as dc
 import data.popup as dp
-import data.map as dm
+import data.board as db
 
 pygame.init()
 
@@ -47,9 +47,9 @@ def display_cursor(screen, cursor):
     ))
     copy = cursor['sprite'].copy()
     color = None
-    if map.map[cursor['y']][cursor['x']].name:  # can speak to
+    if board.map[cursor['y']][cursor['x']].name:  # can speak to
         color = dc.Color.RED
-    elif map.map[cursor['y']][cursor['x']].description:  # description of
+    elif board.map[cursor['y']][cursor['x']].description:  # description of
         color = dc.Color.ORANGE
     else:  # normal cursor
         color = dc.Color.YELLOW
@@ -67,6 +67,7 @@ view_mode = False
 
 
 def move_player(event):
+    global popup
     delta_x = 0
     delta_y = 0
     if event.key in UP_KEYS:
@@ -81,13 +82,17 @@ def move_player(event):
         return
 
     if event.mod == 1:  # shift
-        while map.is_walkable(x=player['x']+delta_x, y=player['y']+delta_y):
+        while board.is_walkable(x=player['x']+delta_x, y=player['y']+delta_y):
             player['x'] += delta_x
             player['y'] += delta_y
     else:
-        if map.is_walkable(x=player['x']+delta_x, y=player['y']+delta_y):
+        if board.is_walkable(x=player['x']+delta_x, y=player['y']+delta_y):
             player['x'] += delta_x
             player['y'] += delta_y
+        elif board.is_talkable(x=player['x']+delta_x, y=player['y']+delta_y):
+            tile = board.map[player['y']+delta_y][player['x']+delta_x]
+            popup = dialogue
+            popup.set(text=[tile.description], speaker=tile)
 
 
 def move_cursor(event):
@@ -103,7 +108,7 @@ def move_cursor(event):
     elif event.key in RIGHT_KEYS:
         delta_x += 1
     elif event.key in ACTION_KEYS:
-        tile = map.map[cursor['y']][cursor['x']]
+        tile = board.map[cursor['y']][cursor['x']]
         if tile.description is not None:
             popup = dialogue
             popup.set(text=[tile.description], speaker=tile)
@@ -120,12 +125,15 @@ UP_KEYS = [pygame.K_UP, pygame.K_i]
 DOWN_KEYS = [pygame.K_DOWN, pygame.K_k]
 LEFT_KEYS = [pygame.K_LEFT, pygame.K_j]
 RIGHT_KEYS = [pygame.K_RIGHT, pygame.K_l]
-VIEW_KEYS = [pygame.K_LCTRL, pygame.K_RCTRL]
+VIEW_KEYS = [pygame.K_LCTRL, pygame.K_RCTRL, pygame.K_x]
 ACTION_KEYS = [pygame.K_SPACE, pygame.K_RETURN]
 QUIT_KEYS = [pygame.K_ESCAPE]
 
-map = dm.Map()
-map.load('overlook.json')
+# TODO? save current before load
+# TODO? prompt file overwrite?
+# TODO make map class with multiple boards
+board = db.Board()
+board.load('house.json')
 # map = dm.empty_map(dc.TILES_WIDE, dc.TILES_TALL)
 # dm.print_map(map)
 
@@ -169,14 +177,14 @@ while run:
                     popup = None
             elif event.key == pygame.K_d:
                 print(player['x'], player['y'])
-            elif view_mode:
+            elif not popup and view_mode:
                 move_cursor(event)
-            else:
+            elif not popup:
                 move_player(event)
 
     screen.fill(dc.BLACK)
 
-    map.draw(screen)
+    board.draw(screen)
 
     screen.blit(player['sprite'], (
         player['x']*dc.TILE_WIDTH,

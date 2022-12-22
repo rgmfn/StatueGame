@@ -4,7 +4,7 @@ import pygame
 import json
 
 
-class Map:
+class Board:
     def __init__(
         self,
     ):
@@ -101,3 +101,7 @@ class Map:
     def is_walkable(self, x: int, y: int):
         return (0 <= x < dc.TILES_WIDE and 0 <= y < dc.TILES_TALL and
                 (not self.map[y][x].is_wall))
+
+    def is_talkable(self, x: int, y: int):
+        return (0 <= x < dc.TILES_WIDE and 0 <= y < dc.TILES_TALL and
+                (self.map[y][x].name is not None))

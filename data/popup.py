@@ -1,5 +1,4 @@
 import data.constants as dc
-import data.map as dm
 import data.tile as dt
 import pygame
 
@@ -38,7 +37,7 @@ class Popup:
         self.y: int = None
         self.w: int = None
         self.h: int = None
-        self.speaker: dm.Tile = None
+        self.speaker: dt.Tile = None
 
         self.box_width: int = self.side_margin*2 + self.line_width
         self.box_height: int = (

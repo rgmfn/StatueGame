@@ -2,7 +2,7 @@ import pygame
 
 import data.constants as dc
 import data.popup as dp
-import data.map as dm
+import data.board as db
 import data.tile as dt
 
 pygame.init()
@@ -60,7 +60,7 @@ test_popup.set(
 
 popup = None
 
-map = dm.Map()
+board = db.Board()
 collision_view = False
 
 mouse_tile = dt.Tile(
@@ -123,32 +123,32 @@ while run:
 
         elif event.type == pygame.MOUSEMOTION:
             if event.buttons[0] and not collision_view:
-                map.set_by_mouse(
+                board.set_by_mouse(
                     mouse_x, mouse_y, mouse_tile.copy(),
                 )
             elif event.buttons[2]:
-                map.set_by_mouse(
+                board.set_by_mouse(
                     mouse_x, mouse_y, dt.Tile(),
                 )
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 if collision_view:
-                    map.flip_wall_mouse(mouse_x, mouse_y)
+                    board.flip_wall_mouse(mouse_x, mouse_y)
                 else:
-                    map.set_by_mouse(
+                    board.set_by_mouse(
                         mouse_x, mouse_y, mouse_tile.copy(),
                     )
             elif event.button == 3:
-                map.set_by_mouse(
+                board.set_by_mouse(
                     mouse_x, mouse_y, dt.Tile(),
                 )
             elif event.button == 2:
-                mouse_tile = map.get_by_mouse(mouse_x, mouse_y).copy()
+                mouse_tile = board.get_by_mouse(mouse_x, mouse_y).copy()
 
         if event.type == pygame.KEYDOWN:
             if popup and popup.does_input:
                 if event.key == pygame.K_RETURN:
-                    get_popup_value(map, mouse_tile)
+                    get_popup_value(board, mouse_tile)
                     popup = None
                 elif event.key == pygame.K_ESCAPE:
                     popup = None
@@ -186,12 +186,11 @@ while run:
                 popup = dialogue
                 popup.set(input_prompt=name_prompt)
             elif event.key == pygame.K_a:
-                print(mouse_tile.fg)
-                print(mouse_tile.bg)
+                print(mouse_tile.description)
 
     screen.fill(dc.BLACK)
 
-    map.draw(screen, collision_view)
+    board.draw(screen, collision_view)
 
     if not collision_view:
         screen.blit(dc.SURFACES[mouse_tile.bg], (
