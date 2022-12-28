@@ -2,12 +2,15 @@ import data.constants as dc
 import data.tile as dt
 import pygame
 
-TOP_LEFT = dc.char_sprites[218]
-TOP_RIGHT = dc.char_sprites[191]
-BOTTOM_LEFT = dc.char_sprites[192]
-BOTTOM_RIGHT = dc.char_sprites[217]
-SIDE = dc.char_sprites[179]
-TOP = dc.char_sprites[196]
+# TODO fix these
+TOP_LEFT = dc.char_sprites[16*dc.SPRITES_PER_ROW+18]
+TOP_RIGHT = dc.char_sprites[16*dc.SPRITES_PER_ROW+19]
+BOTTOM_LEFT = dc.char_sprites[17*dc.SPRITES_PER_ROW+18]
+BOTTOM_RIGHT = dc.char_sprites[17*dc.SPRITES_PER_ROW+19]
+LEFT_SIDE = dc.char_sprites[16*dc.SPRITES_PER_ROW+16]
+RIGHT_SIDE = dc.char_sprites[16*dc.SPRITES_PER_ROW+17]
+TOP = dc.char_sprites[17*dc.SPRITES_PER_ROW+16]
+BOTTOM = dc.char_sprites[17*dc.SPRITES_PER_ROW+17]
 
 
 class Popup:
@@ -50,7 +53,7 @@ class Popup:
             (self.box_height+2)*dc.TILE_HEIGHT,
         ))
         pygame.transform.scale(
-            dc.SURFACES[dc.Color.BLACK],
+            dc.SURFACES[0],
             (
                 (self.box_width+2)*dc.TILE_WIDTH,
                 (self.box_height+2)*dc.TILE_HEIGHT,
@@ -161,7 +164,7 @@ class Popup:
 
         for ix in range(self.box_width):
             if self.speaker and ix < len(self.speaker.name):
-                screen.blit(dc.char_sprites[ord(self.speaker.name[ix])], (
+                screen.blit(dc.get_text_sprite(self.speaker.name[ix]), (
                     (self.x+ix+1)*dc.TILE_WIDTH,  # +1 bc not top left
                     self.y*dc.TILE_HEIGHT,
                 ))
@@ -189,12 +192,12 @@ class Popup:
         for ix in range(self.box_width):
             if (self.text and self.box_num < len(self.text)-1 and
                     self.box_width-5 < ix < self.box_width-1):
-                screen.blit(dc.char_sprites[ord('.')], (
+                screen.blit(dc.get_text_sprite('.'), (
                     (self.x+ix+1)*dc.TILE_WIDTH,  # +1 bc not top left
                     (self.y+self.box_height+1)*dc.TILE_HEIGHT,
                 ))
             else:
-                screen.blit(TOP, (
+                screen.blit(BOTTOM, (
                     (self.x+ix+1)*dc.TILE_WIDTH,  # +1 bc not top left
                     (self.y+self.box_height+1)*dc.TILE_HEIGHT,
                 ))
@@ -207,12 +210,12 @@ class Popup:
     def display_sides(self, screen: pygame.Surface):
         for iy in range(self.box_height):
             # left side
-            screen.blit(SIDE, (
+            screen.blit(LEFT_SIDE, (
                 self.x*dc.TILE_WIDTH,
                 (self.y+iy+1)*dc.TILE_HEIGHT,
             ))
             # right side
-            screen.blit(SIDE, (
+            screen.blit(RIGHT_SIDE, (
                 (self.x+self.box_width+1)*dc.TILE_WIDTH,
                 (self.y+iy+1)*dc.TILE_HEIGHT,
             ))
@@ -222,7 +225,7 @@ class Popup:
         for iy, line in enumerate(box):
             for ix, char in enumerate(line):
                 if char != ' ':
-                    screen.blit(dc.char_sprites[ord(char)], (
+                    screen.blit(dc.get_text_sprite(char), (
                         (self.x+self.side_margin+ix+1)*dc.TILE_WIDTH,
                         (self.y+self.top_margin+1 +
                             iy*(self.line_space+1))*dc.TILE_HEIGHT)
@@ -233,7 +236,7 @@ class Popup:
         if self.input_prompt:
             for ix, char in enumerate(self.input_prompt):
                 if char != ' ':
-                    screen.blit(dc.char_sprites[ord(char)], (
+                    screen.blit(dc.get_text_sprite(char), (
                         (self.x+self.side_margin+ix+1)*dc.TILE_WIDTH,
                         (self.y+self.top_margin+1)*dc.TILE_HEIGHT)
                     )
@@ -241,7 +244,7 @@ class Popup:
             ix = 0
             for char in line:
                 if char != ' ':
-                    screen.blit(dc.char_sprites[ord(char)], (
+                    screen.blit(dc.get_text_sprite(char), (
                         (self.x+self.side_margin+ix+1)*dc.TILE_WIDTH,
                         (self.y+self.top_margin+1 +
                             (iy+int(self.input_prompt is not None)) *
@@ -249,7 +252,7 @@ class Popup:
                     )
                 ix += 1
         if ix < self.line_width:
-            screen.blit(dc.char_sprites[ord('_')], (
+            screen.blit(dc.get_text_sprite('_'), (
                 (self.x+self.side_margin+ix+1)*dc.TILE_WIDTH,
                 (self.y+self.top_margin+1 +
                     (iy+int(self.input_prompt is not None)) *

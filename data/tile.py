@@ -5,9 +5,9 @@ import data.constants as dc
 class Tile:
     def __init__(
         self,
-        char: str = ' ',
-        fg: dc.Color = dc.Color.NONE,
-        bg: dc.Color = dc.Color.NONE,
+        char: int,
+        fg: () = None,
+        bg: () = None,
         description: str = None,
         name: str = None,
         is_wall: bool = False,
@@ -18,9 +18,9 @@ class Tile:
         self.description = description
         self.name = name
         self.is_wall = is_wall
-        self.sprite = dc.char_sprites[ord(char)]
+        self.sprite = dc.char_sprites[char]
 
-    def set(self, char: str, fg: dc.Color, bg: dc.Color):
+    def set(self, char: int, fg: (), bg: ()):
         self.char = char
         self.fg = fg
         self.bg = bg

@@ -21,10 +21,11 @@ mainClock = pygame.time.Clock()
 player = {
     'x': 0,
     'y': 0,
-    'sprite': dc.SURFACES[dc.Color.BLACK].copy(),
+    'sprite': dc.SURFACES[0].copy(),
 }
-_player_color = dc.Color.GREEN
-_player_sprite = dc.char_sprites[1].copy()
+_player_color = 5
+_player_sprite = dc.char_sprites[13*dc.SPRITES_PER_ROW+1].copy()
+# _player_sprite = dc.get_text_sprite('@').copy()
 _player_sprite.blit(dc.SURFACES[_player_color], (
     0, 0
 ), special_flags=pygame.BLEND_RGB_MIN)
@@ -35,24 +36,24 @@ cursor = {
     'y': 0,
     'jump_x': 4,  # how many spaces to jump around by
     'jump_y': 3,  # how many spaces to jump around by
-    'sprite': dc.char_sprites[ord('x')],
+    'sprite': dc.char_sprites[3*dc.SPRITES_PER_ROW+21].copy(),
 }
 
 
 # TODO? make character/entity class for player and cursor
 def display_cursor(screen, cursor):
-    screen.blit(dc.SURFACES[dc.Color.BLACK], (
+    screen.blit(dc.SURFACES[0], (
         cursor['x']*dc.TILE_WIDTH,
         cursor['y']*dc.TILE_HEIGHT,
     ))
     copy = cursor['sprite'].copy()
     color = None
     if board.map[cursor['y']][cursor['x']].name:  # can speak to
-        color = dc.Color.RED
+        color = 2  # red
     elif board.map[cursor['y']][cursor['x']].description:  # description of
-        color = dc.Color.ORANGE
+        color = 8  # orange
     else:  # normal cursor
-        color = dc.Color.YELLOW
+        color = 7  # yellow
 
     copy.blit(dc.SURFACES[color], (
         0, 0,
@@ -129,13 +130,12 @@ VIEW_KEYS = [pygame.K_LCTRL, pygame.K_RCTRL, pygame.K_x]
 ACTION_KEYS = [pygame.K_SPACE, pygame.K_RETURN]
 QUIT_KEYS = [pygame.K_ESCAPE]
 
-# TODO? save current before load
-# TODO? prompt file overwrite?
 # TODO make map class with multiple boards
-board = db.Board()
-board.load('house.json')
-# map = dm.empty_map(dc.TILES_WIDE, dc.TILES_TALL)
-# dm.print_map(map)
+# TODO system for collisions
+# TODO make event prototype
+# TODO make event system
+# TODO make cursor use bg below it (not yellow)
+board = db.Board('tree')
 
 # test_color = (255, 0, 0)
 # test_surf = pygame.Surface((dc.TILE_WIDTH, dc.TILE_HEIGHT))
@@ -182,7 +182,7 @@ while run:
             elif not popup:
                 move_player(event)
 
-    screen.fill(dc.BLACK)
+    screen.fill(dc.COLORS[0])
 
     board.draw(screen)
 
