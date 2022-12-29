@@ -2,7 +2,7 @@ import pygame
 
 import data.constants as dc
 import data.popup as dp
-import data.board as db
+import data.map as dm
 
 pygame.init()
 
@@ -48,9 +48,9 @@ def display_cursor(screen, cursor):
     ))
     copy = cursor['sprite'].copy()
     color = None
-    if board.map[cursor['y']][cursor['x']].name:  # can speak to
+    if map.get_tile(cursor['x'], cursor['y']).name:  # can speak to
         color = 2  # red
-    elif board.map[cursor['y']][cursor['x']].description:  # description of
+    elif map.get_tile(cursor['x'], cursor['y']).description:  # description of
         color = 8  # orange
     else:  # normal cursor
         color = 7  # yellow
@@ -83,17 +83,20 @@ def move_player(event):
         return
 
     if event.mod == 1:  # shift
-        while board.is_walkable(x=player['x']+delta_x, y=player['y']+delta_y):
+        while map.is_walkable(player['x']+delta_x, player['y']+delta_y):
             player['x'] += delta_x
             player['y'] += delta_y
     else:
-        if board.is_walkable(x=player['x']+delta_x, y=player['y']+delta_y):
-            player['x'] += delta_x
-            player['y'] += delta_y
-        elif board.is_talkable(x=player['x']+delta_x, y=player['y']+delta_y):
-            tile = board.map[player['y']+delta_y][player['x']+delta_x]
+        amount_off = map.amount_offscreen(player['x']+delta_x, player['y']+delta_y)
+        if amount_off != (0, 0):
+            player['x'], player['y'] = map.move(*amount_off, player['x'], player['y'])
+        elif map.is_talkable(player['x']+delta_x, player['y']+delta_y):
+            tile = map.get_tile(player['x']+delta_x, player['y']+delta_y)
             popup = dialogue
             popup.set(text=[tile.description], speaker=tile)
+        elif map.is_walkable(player['x']+delta_x, player['y']+delta_y):
+            player['x'] += delta_x
+            player['y'] += delta_y
 
 
 def move_cursor(event):
@@ -109,7 +112,7 @@ def move_cursor(event):
     elif event.key in RIGHT_KEYS:
         delta_x += 1
     elif event.key in ACTION_KEYS:
-        tile = board.map[cursor['y']][cursor['x']]
+        tile = map.get_tile(cursor['x'], cursor['y'])
         if tile.description is not None:
             popup = dialogue
             popup.set(text=[tile.description], speaker=tile)
@@ -117,6 +120,8 @@ def move_cursor(event):
     if event.mod == 1:  # shift
         delta_x *= cursor['jump_x']
         delta_y *= cursor['jump_y']
+
+    # TODO stop from running off screen
 
     cursor['x'] += delta_x
     cursor['y'] += delta_y
@@ -130,23 +135,21 @@ VIEW_KEYS = [pygame.K_LCTRL, pygame.K_RCTRL, pygame.K_x]
 ACTION_KEYS = [pygame.K_SPACE, pygame.K_RETURN]
 QUIT_KEYS = [pygame.K_ESCAPE]
 
-# TODO make map class with multiple boards
+# TODO have separate text for talking and descriptions
 # TODO system for collisions
 # TODO make event prototype
 # TODO make event system
 # TODO make cursor use bg below it (not yellow)
-board = db.Board('tree')
-
-# test_color = (255, 0, 0)
-# test_surf = pygame.Surface((dc.TILE_WIDTH, dc.TILE_HEIGHT))
-# test_surf.set_alpha(100)
-# test_surf.fill(test_color)
+map = dm.Map([
+    ['overlook'],
+    ['tree'],
+], (0, 1))
 
 dialogue: dp.Popup = dp.Popup(
-    num_lines=2,
+    num_lines=3,
     line_width=15,
-    side_margin=1,
-    top_margin=1,
+    side_margin=0,
+    top_margin=0,
     line_space=1,
 )
 popup = None
@@ -177,6 +180,8 @@ while run:
                     popup = None
             elif event.key == pygame.K_d:
                 print(player['x'], player['y'])
+            elif event.key == pygame.K_c:
+                print(cursor['x'], cursor['y'])
             elif not popup and view_mode:
                 move_cursor(event)
             elif not popup:
@@ -184,7 +189,7 @@ while run:
 
     screen.fill(dc.COLORS[0])
 
-    board.draw(screen)
+    map.draw(screen)
 
     screen.blit(player['sprite'], (
         player['x']*dc.TILE_WIDTH,

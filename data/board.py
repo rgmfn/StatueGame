@@ -12,7 +12,7 @@ class Board:
     ):
         self.width = dc.TILES_WIDE
         self.height = dc.TILES_TALL
-        self.map = self.load_playscii(file)
+        self.tiles = self.load_playscii(file)
 
     def load_playscii(self, file):
         new_map = []
@@ -20,9 +20,9 @@ class Board:
             obj = json.load(f)
 
             map = obj['frames'][0]['layers'][0]['tiles']
-            for iy in range(self.height):
+            for iy in range(dc.TILES_TALL):
                 new_line = []
-                for ix in range(self.width):
+                for ix in range(dc.TILES_WIDE):
                     tile = map[iy*dc.TILES_WIDE+ix]
                     new_line.append(dt.Tile(
                         char=tile['char'],
@@ -34,11 +34,12 @@ class Board:
         with open(f'assets/map/{file}.txt', 'r') as f:
             contents = f.read()
 
-            pattern = re.compile(r'(\d+)(-?\d*)\s+(\d+)(-?\d*)\s+"(.+)"\s?(\'.+\')?')
+            regex = r'(\d+)(-?\d*)\s+(\d+)(-?\d*)\s+"(.+)"\s?(\'.+\')?'
+            pattern = re.compile(regex)
             matches = pattern.finditer(contents)
 
             for match in matches:
-                print(match)
+                # print(match)
                 x_start = match.group(1)
                 x_end = match.group(2)[1:]
                 y_start = match.group(3)
@@ -56,10 +57,10 @@ class Board:
                     (y_end != '' and
                         not y_end.isnumeric())
                 ):
-                    print(not x_start.isnumeric())
-                    print(not y_start.isnumeric())
-                    print((x_end != '' and not x_end.isnumeric()))
-                    print((y_end != '' and not y_end.isnumeric()))
+                    # print(not x_start.isnumeric())
+                    # print(not y_start.isnumeric())
+                    # print((x_end != '' and not x_end.isnumeric()))
+                    # print((y_end != '' and not y_end.isnumeric()))
                     continue
 
                 if x_end == '':
@@ -69,7 +70,7 @@ class Board:
 
                 for iy in range(int(y_start), int(y_end)+1):
                     for ix in range(int(x_start), int(x_end)+1):
-                        print(iy, ix, description, name)
+                        # print(iy, ix, description, name)
                         new_map[iy][ix].description = description
                         new_map[iy][ix].name = name
 
@@ -95,12 +96,12 @@ class Board:
                     ))
                 new_map.append(new_line)
 
-            self.map = new_map
+            self.tiles = new_map
 
     def save(self, file: str):
         with open(f'assets/map/{file}', 'w') as f:
             new_map = []
-            for line in self.map:
+            for line in self.tiles:
                 new_line = []
                 for tile in line:
                     new_line.append(tile.to_object())
@@ -123,14 +124,14 @@ class Board:
         return map
 
     def print_colors(self):
-        for row in self.map:
+        for row in self.tiles:
             for tile in row:
                 print(tile.fg, end=',')
             print()
 
     def __repr__(self):
         str = ''
-        for row in self.map:
+        for row in self.tiles:
             for tile in row:
                 str += tile
             str += '\n'
@@ -138,11 +139,11 @@ class Board:
         return str
 
     def draw(self, screen: pygame.Surface, collision_view: bool = False):
-        if self.map is None:
-            print(self.map)
+        if self.tiles is None:
+            print(self.tiles)
             return
 
-        for iy, row in enumerate(self.map):
+        for iy, row in enumerate(self.tiles):
             for ix, tile in enumerate(row):
                 tile.draw(screen, ix, iy, collision_view)
 
@@ -150,13 +151,13 @@ class Board:
         map_x = (mouse_x // dc.SCALE) // dc.TILE_WIDTH
         map_y = (mouse_y // dc.SCALE) // dc.TILE_HEIGHT
         if map_x < self.width and map_y < self.height:
-            self.map[map_y][map_x] = tile
+            self.tiles[map_y][map_x] = tile
 
     def get_by_mouse(self, mouse_x: int, mouse_y: int):
         map_x = (mouse_x // dc.SCALE) // dc.TILE_WIDTH
         map_y = (mouse_y // dc.SCALE) // dc.TILE_HEIGHT
         if map_x < self.width and map_y < self.height:
-            return self.map[map_y][map_x]
+            return self.tiles[map_y][map_x]
         else:
             return None
 
@@ -166,11 +167,20 @@ class Board:
             tile.flip_wall()
 
     def is_walkable(self, x: int, y: int):
-        return (self.map and
+        return (self.tiles and
                 0 <= x < dc.TILES_WIDE and 0 <= y < dc.TILES_TALL and
-                (not self.map[y][x].is_wall))
+                (not self.tiles[y][x].is_wall))
 
     def is_talkable(self, x: int, y: int):
-        return (self.map and
+        return (self.tiles and
                 0 <= x < dc.TILES_WIDE and 0 <= y < dc.TILES_TALL and
-                (self.map[y][x].name is not None))
+                (self.tiles[y][x].name is not None))
+
+    def amount_offscreen(self, x: int, y: int):
+        return (x // self.width, y // self.height)
+
+    def get_tile(self, x: int, y: int):
+        if 0 <= x < self.width and 0 <= y < self.height:
+            return self.tiles[y][x]
+        else:
+            return None

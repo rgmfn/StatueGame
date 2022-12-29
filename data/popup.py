@@ -2,7 +2,6 @@ import data.constants as dc
 import data.tile as dt
 import pygame
 
-# TODO fix these
 TOP_LEFT = dc.char_sprites[16*dc.SPRITES_PER_ROW+18]
 TOP_RIGHT = dc.char_sprites[16*dc.SPRITES_PER_ROW+19]
 BOTTOM_LEFT = dc.char_sprites[17*dc.SPRITES_PER_ROW+18]
