@@ -21,6 +21,7 @@ class Popup:
         top_margin: int,
         does_input: bool = False,
         line_space: int = 1,  # the space between lines (0 or 1)
+        show_name: bool = False,
     ):
         self.num_lines: int = num_lines
         self.line_width: int = line_width
@@ -40,6 +41,7 @@ class Popup:
         self.w: int = None
         self.h: int = None
         self.speaker: dt.Tile = None
+        self.show_name: bool = show_name
 
         self.box_width: int = self.side_margin*2 + self.line_width
         self.box_height: int = (
@@ -68,6 +70,7 @@ class Popup:
             text: [str] = None,
             pos: pygame.Rect = pygame.Rect(0, 0, 0, 0,),
             speaker: dt.Tile = None,
+            show_name: bool = False,
     ):
         self.is_set = True
         self.text = text
@@ -80,6 +83,7 @@ class Popup:
         self.speaker = speaker if speaker and speaker.name else None
         self.input_prompt = input_prompt
         self.input_line = 0
+        self.show_name = show_name
 
         self.parse_text()
 
@@ -162,7 +166,7 @@ class Popup:
         ))
 
         for ix in range(self.box_width):
-            if self.speaker and ix < len(self.speaker.name):
+            if (self.speaker and self.show_name and ix < len(self.speaker.name)):
                 screen.blit(dc.get_text_sprite(self.speaker.name[ix]), (
                     (self.x+ix+1)*dc.TILE_WIDTH,  # +1 bc not top left
                     self.y*dc.TILE_HEIGHT,

@@ -93,7 +93,7 @@ def move_player(event):
         elif map.is_talkable(player['x']+delta_x, player['y']+delta_y):
             tile = map.get_tile(player['x']+delta_x, player['y']+delta_y)
             popup = dialogue
-            popup.set(text=[tile.description], speaker=tile)
+            popup.set(text=[tile.dialogue], speaker=tile, show_name=True)
         elif map.is_walkable(player['x']+delta_x, player['y']+delta_y):
             player['x'] += delta_x
             player['y'] += delta_y
@@ -123,8 +123,12 @@ def move_cursor(event):
 
     # TODO stop from running off screen
 
-    cursor['x'] += delta_x
-    cursor['y'] += delta_y
+    if map.amount_offscreen(
+        cursor['x']+delta_x,
+        cursor['y']+delta_y
+    ) == (0, 0):
+        cursor['x'] += delta_x
+        cursor['y'] += delta_y
 
 
 UP_KEYS = [pygame.K_UP, pygame.K_i]
@@ -135,11 +139,10 @@ VIEW_KEYS = [pygame.K_LCTRL, pygame.K_RCTRL, pygame.K_x]
 ACTION_KEYS = [pygame.K_SPACE, pygame.K_RETURN]
 QUIT_KEYS = [pygame.K_ESCAPE]
 
-# TODO have separate text for talking and descriptions
 # TODO system for collisions
 # TODO make event prototype
 # TODO make event system
-# TODO make cursor use bg below it (not yellow)
+# TODO? make cursor use bg below it (not yellow)
 map = dm.Map([
     ['overlook'],
     ['tree'],
@@ -182,6 +185,8 @@ while run:
                 print(player['x'], player['y'])
             elif event.key == pygame.K_c:
                 print(cursor['x'], cursor['y'])
+            elif event.key == pygame.K_t:
+                print(map.get_tile(player['x'], player['y']).is_wall)
             elif not popup and view_mode:
                 move_cursor(event)
             elif not popup:

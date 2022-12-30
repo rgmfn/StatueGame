@@ -20,14 +20,18 @@ class Board:
             obj = json.load(f)
 
             map = obj['frames'][0]['layers'][0]['tiles']
+            coll_layer = obj['frames'][0]['layers'][1]['tiles']
             for iy in range(dc.TILES_TALL):
                 new_line = []
                 for ix in range(dc.TILES_WIDE):
                     tile = map[iy*dc.TILES_WIDE+ix]
+                    coll_tile = coll_layer[iy*dc.TILES_WIDE+ix]
+                    print(coll_tile)
                     new_line.append(dt.Tile(
                         char=tile['char'],
                         fg=tile['fg']-1,
                         bg=tile['bg']-1,
+                        is_wall=(coll_tile['bg'] == 2),  # white bg
                     ))
                 new_map.append(new_line)
 
@@ -39,12 +43,11 @@ class Board:
             matches = pattern.finditer(contents)
 
             for match in matches:
-                # print(match)
                 x_start = match.group(1)
                 x_end = match.group(2)[1:]
                 y_start = match.group(3)
                 y_end = match.group(4)[1:]
-                description = match.group(5).upper()
+                text = match.group(5).upper()
                 name = match.group(6)
 
                 name = name[1:-1].upper() if name else None
@@ -57,10 +60,6 @@ class Board:
                     (y_end != '' and
                         not y_end.isnumeric())
                 ):
-                    # print(not x_start.isnumeric())
-                    # print(not y_start.isnumeric())
-                    # print((x_end != '' and not x_end.isnumeric()))
-                    # print((y_end != '' and not y_end.isnumeric()))
                     continue
 
                 if x_end == '':
@@ -70,9 +69,11 @@ class Board:
 
                 for iy in range(int(y_start), int(y_end)+1):
                     for ix in range(int(x_start), int(x_end)+1):
-                        # print(iy, ix, description, name)
-                        new_map[iy][ix].description = description
-                        new_map[iy][ix].name = name
+                        if name:
+                            new_map[iy][ix].dialogue = text
+                            new_map[iy][ix].name = name
+                        else:
+                            new_map[iy][ix].description = text
 
         return new_map
 
@@ -174,7 +175,8 @@ class Board:
     def is_talkable(self, x: int, y: int):
         return (self.tiles and
                 0 <= x < dc.TILES_WIDE and 0 <= y < dc.TILES_TALL and
-                (self.tiles[y][x].name is not None))
+                (self.tiles[y][x].name is not None) and
+                (self.tiles[y][x].dialogue is not None))
 
     def amount_offscreen(self, x: int, y: int):
         return (x // self.width, y // self.height)

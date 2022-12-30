@@ -9,6 +9,7 @@ class Tile:
         fg: () = None,
         bg: () = None,
         description: str = None,
+        dialogue: str = None,
         name: str = None,
         is_wall: bool = False,
     ):
@@ -16,6 +17,7 @@ class Tile:
         self.fg = fg
         self.bg = bg
         self.description = description
+        self.dialogue = dialogue
         self.name = name
         self.is_wall = is_wall
         self.sprite = dc.char_sprites[char]
