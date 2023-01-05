@@ -14,8 +14,8 @@ class Tile:
         is_wall: bool = False,
     ):
         # self.char = char
-        # self.fg = fg
-        # self.bg = bg
+        self.fg = fg  # fg of first frame
+        self.bg = bg  # bg of first frame
         self.description = description
         self.dialogue = dialogue
         self.name = name

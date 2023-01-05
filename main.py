@@ -17,6 +17,8 @@ screen = pygame.Surface((
 pygame.display.set_caption('Statue Meditation')
 pygame.mouse.set_visible(False)
 
+scanlines = pygame.image.load('assets/scanlines2.png')
+
 mainClock = pygame.time.Clock()
 
 player = {
@@ -43,7 +45,8 @@ cursor = {
 
 
 # TODO? make character/entity class for player and cursor
-def display_cursor(screen, cursor):
+# TODO smart system to change background color of cursor?
+def display_cursor(screen, cursor, tile_beneath):
     screen.blit(dc.SURFACES[0], (
         cursor['x']*dc.TILE_WIDTH,
         cursor['y']*dc.TILE_HEIGHT,
@@ -53,7 +56,7 @@ def display_cursor(screen, cursor):
     if map.get_tile(cursor['x'], cursor['y']).name:  # can speak to
         color = 2  # red
     elif map.get_tile(cursor['x'], cursor['y']).description:  # description of
-        color = 8  # orange
+        color = 10  # beige
     else:  # normal cursor
         color = 7  # yellow
 
@@ -204,7 +207,7 @@ while run:
     ))
 
     if view_mode:
-        display_cursor(screen, cursor)
+        display_cursor(screen, cursor, map.get_tile(player['x'], player['y']))
 
     if popup:
         popup.display(screen)
@@ -218,11 +221,13 @@ while run:
         display,
     )
 
+    # display.blit(scanlines, (0, 0))
+
     pygame.display.update()
     mainClock.tick(dc.FPS)
 
     animation_ctr += 1
-    if animation_ctr == dc.FPS // 2:
+    if animation_ctr == dc.FPS:
         map.update_animations()
         animation_ctr = 0
 

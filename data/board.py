@@ -21,15 +21,16 @@ class Board:
             tiles = self.__load_tiles(
                 obj['frames'][0]['layers'][0]['tiles']
             )
-            # for row in tiles:
-            #     for tile in row:
-            #         print(tile, end='')
-            #     print()
             self.__load_animations(tiles, obj)
-            # self.__load_collisions(tiles, obj)
-            # self.__load_descriptions(tiles, obj)
+            self.__load_collisions(
+                tiles,
+                obj['frames'][0]['layers'][1]['tiles']
+            )
+            self.__load_descriptions(tiles, file)
 
-        return tiles
+            return tiles
+
+        return None  # unreachable?
 
     def __load_tiles(self, tiles: []) -> []:
         new_map = []
@@ -68,6 +69,56 @@ class Board:
                         j % dc.TILES_WIDE,
                         j // dc.TILES_WIDE,
                     ))
+
+    def __load_collisions(self, tiles: [], collision_tiles: []):
+        for i, tile in enumerate(collision_tiles):
+            if tile['fg'] == 2 or tile['bg'] == 2:
+                tiles[
+                    i // dc.TILES_WIDE
+                ][
+                    i % dc.TILES_WIDE
+                ].is_wall = True
+
+    def __load_descriptions(self, tiles: [], file: str):
+        with open(f'assets/map/{file}.txt', 'r') as f:
+            contents = f.read()
+
+            regex = r'(\d+)(-?\d*)\s+(\d+)(-?\d*)\s+"(.+)"\s?(\'.+\')?'
+            pattern = re.compile(regex)
+            matches = pattern.finditer(contents)
+
+            for match in matches:
+                x_start = match.group(1)
+                x_end = match.group(2)[1:]
+                y_start = match.group(3)
+                y_end = match.group(4)[1:]
+                text = match.group(5).upper()
+                name = match.group(6)
+
+                name = name[1:-1].upper() if name else None
+
+                if (
+                    not x_start.isnumeric() or
+                    not y_start.isnumeric() or
+                    (x_end != '' and
+                        not x_end.isnumeric()) or
+                    (y_end != '' and
+                        not y_end.isnumeric())
+                ):
+                    continue
+
+                if x_end == '':
+                    x_end = x_start
+                if y_end == '':
+                    y_end = y_start
+
+                for iy in range(int(y_start), int(y_end)+1):
+                    for ix in range(int(x_start), int(x_end)+1):
+                        if name:
+                            tiles[iy][ix].dialogue = text
+                            tiles[iy][ix].name = name
+                        else:
+                            tiles[iy][ix].description = text
 
     # TODO split into helper methods methods
     def load_playscii(self, file):
