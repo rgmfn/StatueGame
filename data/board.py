@@ -12,8 +12,64 @@ class Board:
     ):
         self.width = dc.TILES_WIDE
         self.height = dc.TILES_TALL
-        self.tiles = self.load_playscii(file)
+        self.moving_tiles = set()
+        self.tiles = self.load(file)
 
+    def load(self, file) -> []:
+        with open(f'assets/map/{file}.psci', 'r') as f:
+            obj = json.load(f)
+            tiles = self.__load_tiles(
+                obj['frames'][0]['layers'][0]['tiles']
+            )
+            # for row in tiles:
+            #     for tile in row:
+            #         print(tile, end='')
+            #     print()
+            self.__load_animations(tiles, obj)
+            # self.__load_collisions(tiles, obj)
+            # self.__load_descriptions(tiles, obj)
+
+        return tiles
+
+    def __load_tiles(self, tiles: []) -> []:
+        new_map = []
+
+        row = []
+        for i, tile in enumerate(tiles):
+            row.append(dt.Tile(
+                char=tile['char'],
+                fg=tile['fg']-1,  # colors in psci file are 1 indexed
+                bg=tile['bg']-1,
+            ))
+            if i % dc.TILES_WIDE == dc.TILES_WIDE-1:
+                new_map.append(row)
+                row = []
+
+        return new_map
+
+    def __load_animations(self, tiles: [], obj: {}):
+        for i in range(1, len(obj['frames'])):
+            frame = obj['frames'][i]['layers'][0]['tiles']
+            for j, frame_tile in enumerate(frame):
+                if (
+                    frame_tile['fg'] != 0 and
+                    frame_tile['bg'] != 0
+                ):
+                    tiles[
+                        j // dc.TILES_WIDE
+                    ][
+                        j % dc.TILES_WIDE
+                    ].add_frame((
+                        frame_tile['char'],
+                        frame_tile['fg']-1,
+                        frame_tile['bg']-1,
+                    ))
+                    self.moving_tiles.add((
+                        j % dc.TILES_WIDE,
+                        j // dc.TILES_WIDE,
+                    ))
+
+    # TODO split into helper methods methods
     def load_playscii(self, file):
         new_map = []
         with open(f'assets/map/{file}.psci', 'r') as f:
@@ -26,7 +82,7 @@ class Board:
                 for ix in range(dc.TILES_WIDE):
                     tile = map[iy*dc.TILES_WIDE+ix]
                     coll_tile = coll_layer[iy*dc.TILES_WIDE+ix]
-                    print(coll_tile)
+                    # print(coll_tile)
                     new_line.append(dt.Tile(
                         char=tile['char'],
                         fg=tile['fg']-1,
@@ -77,53 +133,6 @@ class Board:
 
         return new_map
 
-    def load(self, file):
-        with open(f'assets/map/{file}', 'r') as f:
-
-            obj = json.loads(f.readline())
-            # print(obj)
-
-            new_map = []
-            for line in obj['map']:
-                new_line = []
-                for tile in line:
-                    new_line.append(dt.Tile(
-                        char=tile['char'],
-                        fg=dc.Color[tile['fg']],
-                        bg=dc.Color[tile['bg']],
-                        is_wall=tile['is_wall'],
-                        name=tile['name'],
-                        description=tile['description'],
-                    ))
-                new_map.append(new_line)
-
-            self.tiles = new_map
-
-    def save(self, file: str):
-        with open(f'assets/map/{file}', 'w') as f:
-            new_map = []
-            for line in self.tiles:
-                new_line = []
-                for tile in line:
-                    new_line.append(tile.to_object())
-                new_map.append(new_line)
-
-            obj = {'map': new_map, 'descriptions': []}
-
-            f.write(json.dumps(obj))
-            # print(json.dumps(obj, indent=4))
-
-    def create_empty(self, width: int, height: int) -> []:
-        map = []
-        for _ in range(height):
-            line_arr = []
-            for _ in range(width):
-                line_arr.append(dt.Tile())
-
-            map.append(line_arr)
-
-        return map
-
     def print_colors(self):
         for row in self.tiles:
             for tile in row:
@@ -147,6 +156,14 @@ class Board:
         for iy, row in enumerate(self.tiles):
             for ix, tile in enumerate(row):
                 tile.draw(screen, ix, iy, collision_view)
+
+    def update_animations(self):
+        """
+        Updates the animations for the tiles that have animations on the
+        current board.
+        """
+        for ix, iy in self.moving_tiles:
+            self.tiles[iy][ix].next_frame()
 
     def set_by_mouse(self, mouse_x: int, mouse_y: int, tile: dt.Tile,):
         map_x = (mouse_x // dc.SCALE) // dc.TILE_WIDTH

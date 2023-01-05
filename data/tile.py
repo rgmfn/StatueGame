@@ -13,33 +13,48 @@ class Tile:
         name: str = None,
         is_wall: bool = False,
     ):
-        self.char = char
-        self.fg = fg
-        self.bg = bg
+        # self.char = char
+        # self.fg = fg
+        # self.bg = bg
         self.description = description
         self.dialogue = dialogue
         self.name = name
         self.is_wall = is_wall
+        # self.sprite = dc.char_sprites[char]
+        self.frames = [
+            (char, fg, bg)
+        ]
+        self.frame = 0
+
+    def add_frame(self, frame: ()):
+        assert len(frame) == 3
+        assert type(frame[0]) is int
+        assert type(frame[1]) is int
+        assert type(frame[2]) is int
+        self.frames.append(frame)
+
+    def get_last_frame(self):
+        return self.frames[-1]
+
+    def set(
+        self,
+        char: int = None,
+        fg: () = None,
+        bg: () = None,
+        description: str = None,
+        dialogue: str = None,
+        name: str = None,
+        is_wall: bool = None,
+    ):
+        self.char = char if char else self.char
         self.sprite = dc.char_sprites[char]
 
-    def set(self, char: int, fg: (), bg: ()):
-        self.char = char
-        self.fg = fg
-        self.bg = bg
-        self.__set_sprite(char)
-
-    def to_object(self):
-        return {
-            'char': self.char,
-            'fg': self.fg.name,
-            'bg': self.bg.name,
-            'is_wall': self.is_wall,
-            'name': self.name,
-            'description': self.description,
-        }
-
-    def flip_wall(self):
-        self.is_wall = not self.is_wall
+        self.fg = fg if fg else self.fg
+        self.bg = bg if bg else self.bg
+        self.description = description if description else self.description
+        self.dialogue = dialogue if dialogue else self.dialogue
+        self.name = name if name else self.name
+        self.is_wall = is_wall if is_wall else self.is_wall
 
     def copy(self):
         return Tile(
@@ -58,13 +73,12 @@ class Tile:
         y: int,
         collision_view: bool = False,
     ):
-        fg = self.bg if collision_view and self.is_wall else self.fg
-        bg = self.fg if collision_view and self.is_wall else self.bg
+        char, fg, bg = self.frames[self.frame]
         screen.blit(dc.SURFACES[bg], (
             x * dc.TILE_WIDTH,
             y * dc.TILE_HEIGHT,
         ))
-        copy = self.sprite.copy()
+        copy = dc.char_sprites[char].copy()
         copy.blit(dc.SURFACES[fg], (
             0, 0,
         ), special_flags=pygame.BLEND_RGBA_MIN)
@@ -73,5 +87,8 @@ class Tile:
             y * dc.TILE_HEIGHT,
         ))
 
+    def next_frame(self):
+        self.frame = (self.frame + 1) % len(self.frames)
+
     def __repr__(self):
-        return self.char
+        return f'{self.frames[0][0]}'

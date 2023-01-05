@@ -85,7 +85,7 @@ class Popup:
         self.input_line = 0
         self.show_name = show_name
 
-        self.parse_text()
+        self.__parse_text()
 
     def next(self):
         """
@@ -122,7 +122,7 @@ class Popup:
         # print(self.input)
 
     # TODO? just make it store an array of strings not an array of arrays
-    def parse_text(self):
+    def __parse_text(self):
         parsed_text = []
 
         if self.text is None:
@@ -159,7 +159,7 @@ class Popup:
 
         # print(self.text)
 
-    def display_top(self, screen: pygame.Surface):
+    def __display_top(self, screen: pygame.Surface):
         screen.blit(TOP_LEFT, (
             self.x*dc.TILE_WIDTH,
             self.y*dc.TILE_HEIGHT,
@@ -186,7 +186,7 @@ class Popup:
             self.y*dc.TILE_HEIGHT,
         ))
 
-    def display_bottom(self, screen: pygame.Surface):
+    def __display_bottom(self, screen: pygame.Surface):
         screen.blit(BOTTOM_LEFT, (
             self.x*dc.TILE_WIDTH,
             (self.y+self.box_height+1)*dc.TILE_HEIGHT,
@@ -210,7 +210,7 @@ class Popup:
             (self.y+self.box_height+1)*dc.TILE_HEIGHT,
         ))
 
-    def display_sides(self, screen: pygame.Surface):
+    def __display_sides(self, screen: pygame.Surface):
         for iy in range(self.box_height):
             # left side
             screen.blit(LEFT_SIDE, (
@@ -223,7 +223,7 @@ class Popup:
                 (self.y+iy+1)*dc.TILE_HEIGHT,
             ))
 
-    def display_text(self, screen: pygame.Surface):
+    def __display_text(self, screen: pygame.Surface):
         box = self.text[self.box_num]
         for iy, line in enumerate(box):
             for ix, char in enumerate(line):
@@ -234,7 +234,7 @@ class Popup:
                             iy*(self.line_space+1))*dc.TILE_HEIGHT)
                     )
 
-    def display_input(self, screen: pygame.Surface):
+    def __display_input(self, screen: pygame.Surface):
         assert self.num_lines >= 2  # needs 2 lines for input
         if self.input_prompt:
             for ix, char in enumerate(self.input_prompt):
@@ -272,11 +272,11 @@ class Popup:
             self.y*dc.TILE_HEIGHT,
         ))
 
-        self.display_top(screen)
-        self.display_bottom(screen)
-        self.display_sides(screen)
+        self.__display_top(screen)
+        self.__display_bottom(screen)
+        self.__display_sides(screen)
 
         if self.does_input:
-            self.display_input(screen)
+            self.__display_input(screen)
         else:
-            self.display_text(screen)
+            self.__display_text(screen)

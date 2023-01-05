@@ -15,6 +15,7 @@ screen = pygame.Surface((
     dc.SCREEN_HEIGHT,
 ))
 pygame.display.set_caption('Statue Meditation')
+pygame.mouse.set_visible(False)
 
 mainClock = pygame.time.Clock()
 
@@ -22,6 +23,7 @@ player = {
     'x': 0,
     'y': 0,
     'sprite': dc.SURFACES[0].copy(),
+    'inventory': [],
 }
 _player_color = 5
 _player_sprite = dc.char_sprites[13*dc.SPRITES_PER_ROW+1].copy()
@@ -121,8 +123,6 @@ def move_cursor(event):
         delta_x *= cursor['jump_x']
         delta_y *= cursor['jump_y']
 
-    # TODO stop from running off screen
-
     if map.amount_offscreen(
         cursor['x']+delta_x,
         cursor['y']+delta_y
@@ -139,9 +139,9 @@ VIEW_KEYS = [pygame.K_LCTRL, pygame.K_RCTRL, pygame.K_x]
 ACTION_KEYS = [pygame.K_SPACE, pygame.K_RETURN]
 QUIT_KEYS = [pygame.K_ESCAPE]
 
-# TODO system for collisions
 # TODO make event prototype
 # TODO make event system
+# TODO add CRT filter
 # TODO? make cursor use bg below it (not yellow)
 map = dm.Map([
     ['overlook'],
@@ -156,6 +156,8 @@ dialogue: dp.Popup = dp.Popup(
     line_space=1,
 )
 popup = None
+
+animation_ctr = 0
 
 run = True
 while run:
@@ -217,6 +219,11 @@ while run:
     )
 
     pygame.display.update()
-    mainClock.tick(30)
+    mainClock.tick(dc.FPS)
+
+    animation_ctr += 1
+    if animation_ctr == dc.FPS // 2:
+        map.update_animations()
+        animation_ctr = 0
 
 pygame.quit()

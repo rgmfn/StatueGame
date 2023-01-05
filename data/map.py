@@ -45,6 +45,13 @@ class Map:
                 y - delta_y * (dc.TILES_TALL-1),
             )
 
+    def update_animations(self):
+        """
+        Updates the animations for the tiles that have animations on the
+        current board.
+        """
+        self.boards[self.curr_y][self.curr_x].update_animations()
+
     def get_tile(self, x: int, y: int):
         """
         Gets the specified tile on the current board.
