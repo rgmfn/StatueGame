@@ -52,6 +52,12 @@ class Map:
         """
         self.boards[self.curr_y][self.curr_x].update_animations()
 
+    def get_board(self, x: int, y: int):
+        """
+        Gets the specified board.
+        """
+        return self.boards[y][x]
+
     def get_tile(self, x: int, y: int):
         """
         Gets the specified tile on the current board.

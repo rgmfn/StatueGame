@@ -29,7 +29,6 @@ player = {
 }
 _player_color = 5
 _player_sprite = dc.char_sprites[13*dc.SPRITES_PER_ROW+1].copy()
-# _player_sprite = dc.get_text_sprite('@').copy()
 _player_sprite.blit(dc.SURFACES[_player_color], (
     0, 0
 ), special_flags=pygame.BLEND_RGB_MIN)
@@ -145,7 +144,6 @@ QUIT_KEYS = [pygame.K_ESCAPE]
 # TODO make event prototype
 # TODO make event system
 # TODO add CRT filter
-# TODO? make cursor use bg below it (not yellow)
 map = dm.Map([
     ['overlook'],
     ['tree'],
@@ -185,13 +183,18 @@ while run:
             elif (event.key in ACTION_KEYS and
                     popup and not popup.does_input):
                 if not popup.next():
+                    popup.speaker.run_event(map)
                     popup = None
-            elif event.key == pygame.K_d:
-                print(player['x'], player['y'])
             elif event.key == pygame.K_c:
                 print(cursor['x'], cursor['y'])
-            elif event.key == pygame.K_t:
-                print(map.get_tile(player['x'], player['y']).is_wall)
+            elif event.key == pygame.K_w:
+                print(map.get_tile(cursor['x'], cursor['y']).is_wall)
+            elif event.key == pygame.K_s:
+                print(map.curr_x, map.curr_y)
+            elif event.key == pygame.K_n:
+                print(map.get_tile(cursor['x'], cursor['y']).name)
+            elif event.key == pygame.K_f:
+                print(map.get_tile(cursor['x'], cursor['y']).frames)
             elif not popup and view_mode:
                 move_cursor(event)
             elif not popup:

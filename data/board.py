@@ -8,15 +8,16 @@ import re
 class Board:
     def __init__(
         self,
-        file: str,
+        name: str,
     ):
         self.width = dc.TILES_WIDE
         self.height = dc.TILES_TALL
         self.moving_tiles = set()
-        self.tiles = self.load(file)
+        self.tiles = self.load(name)
+        self.name = name
 
-    def load(self, file) -> []:
-        with open(f'assets/map/{file}.psci', 'r') as f:
+    def load(self, name) -> []:
+        with open(f'assets/map/{name}.psci', 'r') as f:
             obj = json.load(f)
             tiles = self.__load_tiles(
                 obj['frames'][0]['layers'][0]['tiles']
@@ -26,7 +27,8 @@ class Board:
                 tiles,
                 obj['frames'][0]['layers'][1]['tiles']
             )
-            self.__load_descriptions(tiles, file)
+            self.__load_descriptions(tiles, name)
+            self.__load_events(tiles, name)
 
             return tiles
 
@@ -120,69 +122,24 @@ class Board:
                         else:
                             tiles[iy][ix].description = text
 
-    # TODO split into helper methods methods
-    def load_playscii(self, file):
-        new_map = []
-        with open(f'assets/map/{file}.psci', 'r') as f:
-            obj = json.load(f)
+    def __load_events(self, tiles: [], file: str):
+        try:
+            with open(f'assets/map/{file}.events', 'r') as f:
+                contents = f.read()
 
-            map = obj['frames'][0]['layers'][0]['tiles']
-            coll_layer = obj['frames'][0]['layers'][1]['tiles']
-            for iy in range(dc.TILES_TALL):
-                new_line = []
-                for ix in range(dc.TILES_WIDE):
-                    tile = map[iy*dc.TILES_WIDE+ix]
-                    coll_tile = coll_layer[iy*dc.TILES_WIDE+ix]
-                    # print(coll_tile)
-                    new_line.append(dt.Tile(
-                        char=tile['char'],
-                        fg=tile['fg']-1,
-                        bg=tile['bg']-1,
-                        is_wall=(coll_tile['bg'] == 2),  # white bg
-                    ))
-                new_map.append(new_line)
+                regex = r'(\d+)\s(\d+)\s(\w+)'
+                pattern = re.compile(regex)
+                matches = pattern.finditer(contents)
 
-        with open(f'assets/map/{file}.txt', 'r') as f:
-            contents = f.read()
+                for match in matches:
+                    board_x = int(match.group(1))
+                    board_y = int(match.group(2))
+                    event_name = match.group(3)
 
-            regex = r'(\d+)(-?\d*)\s+(\d+)(-?\d*)\s+"(.+)"\s?(\'.+\')?'
-            pattern = re.compile(regex)
-            matches = pattern.finditer(contents)
-
-            for match in matches:
-                x_start = match.group(1)
-                x_end = match.group(2)[1:]
-                y_start = match.group(3)
-                y_end = match.group(4)[1:]
-                text = match.group(5).upper()
-                name = match.group(6)
-
-                name = name[1:-1].upper() if name else None
-
-                if (
-                    not x_start.isnumeric() or
-                    not y_start.isnumeric() or
-                    (x_end != '' and
-                        not x_end.isnumeric()) or
-                    (y_end != '' and
-                        not y_end.isnumeric())
-                ):
-                    continue
-
-                if x_end == '':
-                    x_end = x_start
-                if y_end == '':
-                    y_end = y_start
-
-                for iy in range(int(y_start), int(y_end)+1):
-                    for ix in range(int(x_start), int(x_end)+1):
-                        if name:
-                            new_map[iy][ix].dialogue = text
-                            new_map[iy][ix].name = name
-                        else:
-                            new_map[iy][ix].description = text
-
-        return new_map
+                    tiles[board_y][board_x].event_name = event_name
+        except IOError:
+            print(f'no file for [{file}]')
+            pass
 
     def print_colors(self):
         for row in self.tiles:
